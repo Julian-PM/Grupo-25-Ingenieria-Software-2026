@@ -11,6 +11,7 @@
 <div class="container-fluid">
   <h1>My First Bootstrap Page</h1>
   <p>This part is inside a .container-fluid class.</p>
+  <!--Cada botón abrirá un modal-->
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearModal"">Crear</button>
   <button type="button" class="btn btn-success">Actualizar</button>
   <button type="button" class="btn btn-success">Borrar</button>
@@ -31,7 +32,10 @@
 
       <!-- Modal body -->
       <div class="modal-body">
+        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
+         <!-- Action es a dónde los manda, y # los manda a la misma página-->
         <form method="POST" role="form" action="#">
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3 mt-3">
                 <label for="idClienteForm" class="form-label">id del Cliente:</label>
                 <input type="text" class="form-control" id="idClienteForm" placeholder="Inserte id del cliente" name="idCliente">
