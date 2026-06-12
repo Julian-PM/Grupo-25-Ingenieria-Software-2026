@@ -26,9 +26,9 @@ supabase: Client = create_client(
 # NOTA: las páginas html tienen que estar dentro de templates
 # index.html no hace nada aún
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST', 'DELETE', 'PUT' ])
 def index():
-    #Esta parte se activa cuando recibe una solicitud POST.
+    #Esta parte se activa cuando recibe una solicitud POST, es decir, cuando se crea un cliente.
     #Ocurre cuando se usa un botón con submit.
     if request.method == 'POST':
         rut = request.form['rut']
@@ -65,12 +65,22 @@ def index():
                       }).execute()
         )
         if response.data:
-            return "Éxito!"
+            return "Cliente creado exitosamente"
         else:
-            return "Error", 500
+            return "Error creando cliente", 500
+    if request.mehtod == 'DELETE':
+        if response.data:
+            return "Cliente borrado exitosamente"
+        else:
+            return "Error borrando cliente", 500
+    if request.method == 'PUT':
+        if response.data:
+            return "Cliente actualizado exitosamente"
+        else:
+            return "Error actualizando cliente", 500
     #Esto ocurre por defecto, y simplemente carga cliente.html
     else:
-        return render_template('cliente.html')
+        return render_template('clientes.html')
 #Esto simplemente lo corre en debug mode
 if __name__ == '__main__':
     app.run(debug=True)
