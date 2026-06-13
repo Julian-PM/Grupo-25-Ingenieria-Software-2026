@@ -24,12 +24,9 @@ supabase: Client = create_client(
 # cuando tengamos las otras páginas.
 
 # NOTA: las páginas html tienen que estar dentro de templates
-# index.html no hace nada aún
 
-@app.route('/', methods=['GET', 'POST', 'DELETE', 'PUT' ])
-def index():
-    #Esta parte se activa cuando recibe una solicitud POST, es decir, cuando se crea un cliente.
-    #Ocurre cuando se usa un botón con submit.
+@app.route('/clientes.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def clientes():
     if request.method == 'POST':
         rut = request.form['rut']
         nom = request.form['nombre']
@@ -68,7 +65,7 @@ def index():
             return "Cliente creado exitosamente"
         else:
             return "Error creando cliente", 500
-    if request.mehtod == 'DELETE':
+    if request.method == 'DELETE':
         if response.data:
             return "Cliente borrado exitosamente"
         else:
@@ -78,9 +75,156 @@ def index():
             return "Cliente actualizado exitosamente"
         else:
             return "Error actualizando cliente", 500
-    #Esto ocurre por defecto, y simplemente carga cliente.html
     else:
         return render_template('clientes.html')
+
+@app.route('/colores.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def colores():
+    if request.method == 'POST':
+        codigoLetras = request.form['codigoLetrasCrear']
+        descripcion = request.form['descripcionCrear']
+
+        response = (
+            supabase.table("colores").insert({"codigoLetras": codigoLetras,
+                "descripcion": descripcion}).execute()
+        )
+        if response.data:
+            return "Color creado exitosamente"
+        else:
+            return "Error creando color", 500
+    else:
+        return render_template('colores.html')
+    
+@app.route('/bodegas.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def bodegas():
+    if request.method == 'POST':
+        descripcion = request.form['descripcionCrear']
+
+        response = (
+            supabase.table("bodegas").insert({"descripcion": descripcion
+                      }).execute()
+        )
+        if response.data:
+            return "Bodega creada exitosamente"
+        else:
+            return "Error creando bodega", 500
+    else:
+        return render_template('bodega.html')
+
+@app.route('/vendedores.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def vendedores():
+    if request.method == 'POST':
+        rut = request.form['rutCrear']
+        nom = request.form['nombreCrear']
+        correo = request.form['correoCrear']
+        tf = request.form['telefonoCrear']
+        digVer = request.form['digVerCrear']
+        porComi = request.form['porComisionCrear']
+
+        response = (
+            supabase.table("vendedores").insert({"rut": rut, "nombre": nom,
+                      "correo": correo, "telefono": tf, 
+                      "digito_verificador": digVer,
+                      "porcentaje_comision": porComi,
+                      }).execute()
+        )
+        if response.data:
+            return "Vendedor creado exitosamente"
+        else:
+            return "Error creando vendedor", 500
+    else:
+        return render_template('vendedores.html')
+
+@app.route('/zonasVenta.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def zonasVenta():
+    if request.method == 'POST':
+        descripcion = request.form['descripcionCrear']
+
+        response = (
+            supabase.table("zona_venta").insert({"descripcion": descripcion
+                      }).execute()
+        )
+        if response.data:
+            return "Zona de venta creada exitosamente"
+        else:
+            return "Error creando zona de venta", 500
+    else:
+        return render_template('zonaVenta.html')
+
+@app.route('/tallas.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def tallas():
+    if request.method == 'POST':
+        talla = request.form['tallaCrear']
+
+        response = (
+            supabase.table("tallas").insert({"talla": talla
+                      }).execute()
+        )
+        if response.data:
+            return "Talla creada exitosamente"
+        else:
+            return "Error creando talla", 500
+    else:
+        return render_template('tallas.html')
+
+@app.route('/productos.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def productos():
+    if request.method == 'POST':
+        descripcion = request.form['descripcionCrear']
+        abreviacion = request.form['abreviacionCrear']
+        listaColores = request.form['listaColoresCrear']
+        precioMayor = request.form['precioMayorCrear']
+        precioCosto = request.form['precioCostoCrear']
+        precioDetalle = request.form['precioDetalle']
+        codigoEAN = request.form['codigoEANCrear']
+        listaTallas = request.form['listaTallasCrear']
+
+        response = (
+            supabase.table("productos").insert({"descripcion": descripcion,
+                      "abreviacion": abreviacion,"listaColores": listaColores,
+                      "precioMayor": precioMayor, "precioCosto": precioCosto,
+                      "precioDetalle": precioDetalle,"codigoEAN": codigoEAN,
+                      "listaTallas": listaTallas
+                      }).execute()
+        )
+        if response.data:
+            return "Producto creado exitosamente"
+        else:
+            return "Error creando producto", 500
+    else:
+        return render_template('productos.html')
+
+@app.route('/codigosEAN.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def codigosEAN():
+    if request.method == 'POST':
+        producto = request.form['productoCrear']
+
+        response = (
+
+            #Este es el comando para insertar los datos a la base de datos.
+            supabase.table("codigosEAN").insert({"producto": producto
+                      }).execute()
+        )
+        if response.data:
+            return "Código creado exitosamente"
+        else:
+            return "Error creando código", 500
+    else:
+        return render_template('codigosEAN.html')
+
+
+@app.route('/archivosMaestros.html', methods=['GET'])
+def archivosMaestros():
+        return render_template('archivosMaestros.html')
+
+@app.route('/produccion.html', methods=['GET'])      
+def produccion():
+        return render_template('produccion.html')
+
+@app.route('/', methods=['GET'])
+def index():
+        return render_template('index.html')
+
 #Esto simplemente lo corre en debug mode
 if __name__ == '__main__':
     app.run(debug=True)
