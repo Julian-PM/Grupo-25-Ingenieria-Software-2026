@@ -185,6 +185,7 @@
         <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
          <!-- Action es a dónde los manda, y # los manda a la misma página-->
         <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="post" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3 mt-3">
                 <label for="idClienteForm" class="form-label">id del Cliente:</label>
@@ -280,12 +281,11 @@
 
       <!-- Modal body -->
       <div class="modal-body">
-        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
-         <!-- Action es a dónde los manda, y # los manda a la misma página-->
         <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="put" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3 mt-3">
-                <label for="IDidClienteActualizar" class="form-label">id del Cliente:</label>
+                <label for="IDidClienteActualizar" class="form-label">id del Cliente a actualizar:</label>
                 <input type="text" class="form-control" id="IDidClienteActualizar" placeholder="Inserte id del cliente" name="idClienteActualizar">
             </div>
             <div class="mb-3 mt-3">
@@ -307,11 +307,6 @@
             <div class="mb-3 mt-3">
                 <label for="IDdireccionActualizar" class="form-label">Dirección:</label>
                 <input type="text" class="form-control" id="IDdireccionActualizar" placeholder="Inserte dirección" name="direccionActualizar">
-            </div>
-            <div class="form-check mb-3">
-                <label class="form-check-label">
-                <input class="form-check-input" id="IDactivoActualizar" type="checkbox" name="activoActualizar" value= true> Activo
-                </label>
             </div>
             <div class="mb-3 mt-3">
                 <label for="IDdigVerActualizar" class="form-label">Dígito verificador:</label>
@@ -378,13 +373,12 @@
 
       <!-- Modal body -->
       <div class="modal-body">
-        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
-         <!-- Action es a dónde los manda, y # los manda a la misma página-->
         <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="delete" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3 mt-3">
-                <label for="idClienteForm" class="form-label">id del Cliente:</label>
-                <input type="text" class="form-control" id="idClienteForm" placeholder="Inserte id del cliente" name="idCliente">
+                <label for="idClienteForm" class="form-label">Id del Cliente:</label>
+                <input type="text" class="form-control" id="idClienteForm" placeholder="Inserte id del cliente" name="idClienteBorrar">
             </div>
             <button type="submit" class="btn btn-primary">Borrar</button>
         </form>
