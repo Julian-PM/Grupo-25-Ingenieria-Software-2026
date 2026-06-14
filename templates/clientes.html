@@ -4,25 +4,171 @@
   <title>Clientes - Comercial D Nix</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta id="foo" data-name="{{datos.data}}">
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
+<script>
+
+    //var foo = $('#my-data').data();
+    
+    function renderClientesTabla(containerId){
+        var test = document.querySelector('#my_variable').value 
+        //const aux = JSON.parse(test)
+        const clientes = test
+        const test2 = test
+        console.log(test)
+        console.log(clientes)
+        const container = document.getElementById(containerId);
+        if (!container){
+          console.log('test')
+          return;  
+        } 
+        // Limpiar contenidos
+        container.textContent = '';
+        // Comprobar la existencia de los usuarios
+        /*if (clientes.length === 0){
+            const p = document.createElement('p'); // Sin asignación
+            p.textContent = 'Sin Datos';
+            container.appendChild(p); // Asignación de p a div
+            return;
+            console.log('iftest')
+        }*/
+       // Crear Tabla
+       console.log('test2')
+       const table = document.createElement('table'); // Sin asignación
+       table.className = "table table-striped";
+       const thead = document.createElement('thead'); // Sin asignación
+       const headerRow = document.createElement('tr'); // Sin asignación
+       ['id_cliente','rut','nombre', 'correo', 'telefono', 'direccion',
+        'digito_verificador', 'abreviacion', 'ciudad', 'comuna', 'condiciones_venta',
+        'via_despacho', 'porcentaje_comision', 'porcentaje_cobranza', 'observaciones',
+        'id_zona_venta'].forEach((col) => {
+            const th = document.createElement('th'); // Sin asignación
+            th.textContent = col;
+            headerRow.appendChild(th); // Asignar th a tr
+       });
+       thead.appendChild(headerRow); // Asignar tr a thead
+       table.appendChild(thead) // Asignar thead a table
+       const tbody = document.createElement('tbody'); // Sin asignación
+       for (const u of clientes) { // count(usuarios)
+        const tr = document.createElement('tr');
+        const tdId = document.createElement('td');
+        const tdRut = document.createElement('td');
+        const tdNombre = document.createElement('td');
+        const tdCorreo = document.createElement('td');
+        const tdTelefono = document.createElement('td');
+        const tdDireccion = document.createElement('td');
+        const tdDigitoVerificador = document.createElement('td');
+        const tdAbreviacion = document.createElement('td');
+        const tdCiudad = document.createElement('td');
+        const tdComuna = document.createElement('td');
+        const tdCondicionesVenta = document.createElement('td');
+        const tdViaDespacho = document.createElement('td');
+        const tdPorcentajeComision = document.createElement('td');
+        const tdPorcentajeCobranza = document.createElement('td');
+        const tdObservaciones = document.createElement('td');
+        const tdIdZonaVenta = document.createElement('td');
+        tdId. textContent = u.id_cliente ?? '';
+        tdRut. textContent = u.rut ?? '';
+        tdNombre. textContent = u.nombre ?? '';
+        tdCorreo. textContent = u.correo ?? '';
+        tdTelefono. textContent = u.telefono ?? '';
+        tdDireccion. textContent = u.direccion ?? '';
+        tdDigitoVerificador. textContent = u.digito_verificador ?? '';
+        tdAbreviacion. textContent = u.abreviacion ?? '';
+        tdCiudad. textContent = u.ciudad ?? '';
+        tdComuna. textContent = u.comuna ?? '';
+        tdCondicionesVenta. textContent = u.condiciones_venta ?? '';
+        tdViaDespacho. textContent = u.via_despacho ?? '';
+        tdPorcentajeComision. textContent = u.porcentaje_comision ?? '';
+        tdPorcentajeCobranza. textContent = u.porcentaje_cobranza ?? '';
+        tdObservaciones. textContent = u.observaciones ?? '';
+        tdIdZonaVenta. textContent = u.id_zona_venta ?? '';
+        tr.appendChild(tdId);
+        tr.appendChild(tdRut);
+        tr.appendChild(tdNombre);
+        tr.appendChild(tdTelefono);
+        tr.appendChild(tdDireccion);
+        tr.appendChild(tdDigitoVerificador);
+        tr.appendChild(tdAbreviacion);
+        tr.appendChild(tdCiudad);
+        tr.appendChild(tdComuna);
+        tr.appendChild(tdCondicionesVenta);
+        tr.appendChild(tdViaDespacho);
+        tr.appendChild(tdPorcentajeComision);
+        tr.appendChild(tdPorcentajeCobranza);
+        tr.appendChild(tdObservaciones);
+        tr.appendChild(tdIdZonaVenta);
+        tbody.appendChild(tr);
+       }
+       table.appendChild(tbody);
+       table.style.borderCollapse = 'collapse';
+       //CSS minimo groupselector
+       table.querySelectorAll('th, td').forEach((cell) => {
+            cell.style.border = '1px solid #ccc';
+            cell.style.padding = '6px 8px';
+       });
+       container.appendChild(table);
+    }
+    
+
+    function createTableFromJSON() {
+        var test = document.querySelector('#my_variable').value 
+        const data = JSON.parse(test)
+        if (!data || !data.length) return;
+
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+        const headerRow = document.createElement('tr');
+
+        // Extract headers from the first object's keys
+        const headers = Object.keys(data[0]);
+        console.log(headers)
+        headers.forEach(key => {
+            const th = document.createElement('th');
+            th.textContent = key;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // Create rows for each data object
+        data.forEach((rowData) => {
+            const tr = document.createElement('tr');
+            headers.forEach(key => {
+            const td = document.createElement('td');
+            // Handle null/undefined or nested objects
+            const value = rowData[key];
+            td.textContent = (typeof value === 'object') ? JSON.stringify(value) : value;
+            tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        document.getElementById('tablaClientes').appendChild(table);
+        } 
+</script>
+
 <body>
-<div class="container-fluid">
+<input type="hidden"  id="my_variable" value='{{ datos | tojson }}'>
+
+
+<div class="container-fluid" >
+  
   <h1>Clientes</h1>
   <p>Elija una opción.</p>
   <!--Cada botón abrirá un modal-->
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearModal">Crear</button>
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#actualizarModal">Actualizar</button>
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#borrarModal">Borrar</button>
-  <button type="button" class="btn btn-success">Ver</button>
+  <button type="button" class="btn btn-success" onclick="createTableFromJSON()">Ver</button>
+  <div class="container-fluid" id="tablaClientes" onload="createTableFromJSON()"></div>
   
 </div>
-
-<div>
-    
-</div>
-
 
 <div class="modal" id="crearModal">
   <div class="modal-dialog modal-dialog-scrollable">
@@ -254,4 +400,5 @@
 </div>
 
 </body>
+
 </html>
