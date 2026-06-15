@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Tallas - Comercial D Nix</title>
+  <title>Pedidos - Comercial D Nix</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta id="foo" data-name="{{datos.data}}">
@@ -48,7 +48,7 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaTallas').appendChild(table);
+        document.getElementById('tablaPedidos').appendChild(table);
         } 
 </script>
 
@@ -58,14 +58,14 @@
 
 <div class="container-fluid" >
   
-  <h1>Tallas</h1>
+  <h1>Pedidos</h1>
   <p>Elija una opción.</p>
   <!--Cada botón abrirá un modal-->
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearModal">Crear</button>
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#actualizarModal">Actualizar</button>
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#borrarModal">Borrar</button>
   <button type="button" class="btn btn-success" onclick="createTableFromJSON()">Ver</button>
-  <div class="container-fluid" id="tablaTallas" onload="createTableFromJSON()"></div>
+  <div class="container-fluid" id="tablaPedidos" onload="createTableFromJSON()"></div>
   
 </div>
 
@@ -75,20 +75,31 @@
 
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title">Crear Talla</h4>
+        <h4 class="modal-title">Crear Pedido</h4>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <!-- Modal body -->
       <div class="modal-body">
-        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
-         <!-- Action es a dónde los manda, y # los manda a la misma página-->
+
         <form method="POST" role="form" action="#">
             <input type="hidden" name="_method" value="post" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3">
-                <label for="tallaForm" class="form-label">Talla:</label>
-                <input type="text" class="form-control" id="tallaForm" placeholder="Inserte talla" name="tallaCrear">
+                <label for="IDClienteForm" class="form-label">ID del cliente asociado:</label>
+                <input type="text" class="form-control" id="IDClienteForm" placeholder="Inserte id del cliente asociado" name="IDClienteCrear">
+            </div>
+            <div class="mb-3">
+                <label for="fechaPedidoForm" class="form-label">Fecha del pedido:</label>
+                <input type="date" class="form-control" id="fechaPedidoForm" placeholder="Inserte fecha de realización del pedido" name="fechaPedidoCrear">
+            </div>
+            <div class="mb-3">
+                <label for="fechaLimiteForm" class="form-label">Fecha límite de entrega del pedido:</label>
+                <input type="date" class="form-control" id="fechaLimiteForm" placeholder="Inserte fecha límite de entrega del pedido" name="fechaLimiteCrear">
+            </div>
+            <div class="mb-3">
+                <label for="VendedorForm" class="form-label">ID del vendedor asociado:</label>
+                <input type="text" class="form-control" id="VendedorForm" placeholder="Inserte el id del vendedor asociado" name="IDVendedorCrear">
             </div>
             <button type="submit" class="btn btn-primary">Crear</button>
         </form>
@@ -109,7 +120,7 @@
 
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title">Actualizar Talla</h4>
+        <h4 class="modal-title">Actualizar Pedido</h4>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
@@ -119,12 +130,24 @@
             <input type="hidden" name="_method" value="put" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3 mt-3">
-                <label for="IDidTallaActualizar" class="form-label">Id de la talla a actualizar:</label>
-                <input type="text" class="form-control" id="IDidTallaActualizar" placeholder="Inserte id de la talla" name="IdTallaActualizar">
+                <label for="IDidPedidoActualizar" class="form-label">Id del pedido a actualizar:</label>
+                <input type="text" class="form-control" id="IDidPedidoActualizar" placeholder="Inserte id de la talla" name="IdPedidoActualizar">
             </div>
             <div class="mb-3">
-                <label for="tallaFormActualizar" class="form-label">Talla:</label>
-                <input type="text" class="form-control" id="tallaFormActualizar" placeholder="Inserte talla" name="tallaActualizar">
+                <label for="IDClienteForm" class="form-label">ID del cliente asociado:</label>
+                <input type="text" class="form-control" id="IDClienteForm" placeholder="Inserte id del cliente asociado" name="IDClienteActualizar">
+            </div>
+            <div class="mb-3">
+                <label for="fechaPedidoForm" class="form-label">Fecha del pedido:</label>
+                <input type="date" class="form-control" id="fechaPedidoForm" placeholder="Inserte fecha de realización del pedido" name="fechaPedidoActualizar">
+            </div>
+            <div class="mb-3">
+                <label for="fechaLimiteForm" class="form-label">Fecha límite de entrega del pedido:</label>
+                <input type="date" class="form-control" id="fechaLimiteForm" placeholder="Inserte fecha límite de entrega del pedido" name="fechaLimiteActualizar">
+            </div>
+            <div class="mb-3">
+                <label for="VendedorForm" class="form-label">ID del vendedor asociado:</label>
+                <input type="text" class="form-control" id="VendedorForm" placeholder="Inserte el id del vendedor asociado" name="IDVendedorActualizar">
             </div>
             <button type="submit" class="btn btn-primary">Actualizar</button>
         </form>
@@ -145,7 +168,7 @@
 
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title">Borrar Talla</h4>
+        <h4 class="modal-title">Borrar Pedido</h4>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
@@ -155,8 +178,8 @@
             <input type="hidden" name="_method" value="delete" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3 mt-3">
-                <label for="idTallaFormBorrar" class="form-label">Id de la talla:</label>
-                <input type="text" class="form-control" id="idTallaFormBorrar" placeholder="Inserte id de la talla" name="idTallaBorrar">
+                <label for="idPedidoFormBorrar" class="form-label">Id del pedido:</label>
+                <input type="text" class="form-control" id="idPedidoFormBorrar" placeholder="Inserte id del pedido" name="idPedidoBorrar">
             </div>
             <button type="submit" class="btn btn-primary">Borrar</button>
         </form>
