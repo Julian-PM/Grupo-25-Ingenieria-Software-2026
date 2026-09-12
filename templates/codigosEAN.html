@@ -64,6 +64,7 @@
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearModal">Crear</button>
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#actualizarModal">Actualizar</button>
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#borrarModal">Borrar</button>
+  <button type ="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#buscarIDModal">Buscar por ID</button>
   <button type="button" class="btn btn-success" onclick="createTableFromJSON()">Ver</button>
   <div class="container-fluid" id="tablaCodigos" onload="createTableFromJSON()"></div>
   
@@ -168,6 +169,39 @@
                 <input type="text" class="form-control" id="idCodigoFormBorrar" placeholder="Inserte id del código" name="idCodigoBorrar">
             </div>
             <button type="submit" class="btn btn-primary">Borrar</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal" id="buscarIDModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Buscar Código EAN</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
+         <!-- Action es a dónde los manda, y # los manda a la misma página-->
+        <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="buscarID" />
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+            <div class="mb-3 mt-3">
+                <label for="idForm" class="form-label">Por ID:</label>
+                <input type="text" class="form-control" id="idBuscar" placeholder="Inserte ID a buscar" name="idBuscar">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
       </div>
 

@@ -25,6 +25,66 @@ supabase: Client = create_client(
 
 # NOTA: las páginas html tienen que estar dentro de templates
 
+@app.route('/test.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def test():
+    if request.method == 'POST':
+        metodo = request.form['_method']
+        if (metodo == "post"):
+            codigo = request.form['codigoCrear']
+            descripcion = request.form['descripcionCrear']
+
+            #Hasta aquí toma los datos que se enviaron desde cliente.html cuando
+            #se pulsó el botón con submit.
+
+            #Esto se encapsula en response para poder detectar y loggear errores.
+            response = (
+
+                #Este es el comando para insertar los datos a la base de datos.
+                supabase.table("colores").insert({"codigo_color": codigo, "descripcion": descripcion,
+                        }).execute()
+            )
+            if response.data:
+                return "Color creado exitosamente"
+            else:
+                return "Error creando color", 500
+        if (metodo == "put"):
+            idColor = request.form<['idColorActualizar']
+            codigo = request.form['codigoActualizar']
+            descripcion = request.form['descripcionActualizar'] 
+            response = (
+                
+                supabase.table("colores").update({"codigo_color": codigo, "descripcion": descripcion,
+                        }).eq("id_color", idColor).select("id_color").execute()
+            )
+            if response.data:
+                return "Color actualizado exitosamente"
+            else:
+                return "Error actualizando color", 500
+        if (metodo == "delete"):
+            idABorrar = request.form['idColorBorrar']
+            response = (
+                supabase.table("colores").delete()
+                .eq("id_color", idABorrar)
+                .execute()
+            )
+            if response.data:
+                return "Color borrado exitosamente"
+            else:
+                return "Error borrando color", 500
+        if (metodo == "buscarDescripcion"):
+            texto = request.form["descripcionBuscar"]
+            response = supabase.rpc('buscarcolorcodigo', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('test.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún color con la descrpición buscada"
+    else:
+        response =(
+            supabase.table("colores").select("*").execute()
+        )
+            
+        return render_template('test.html', datos = response.data)
+
 @app.route('/pedidos.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def pedidos():
     if request.method == 'POST':
@@ -73,7 +133,13 @@ def pedidos():
                 return "Pedido borrado exitosamente"
             else:
                 return "Error borrando pedido", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarpedidoid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('pedidos.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún pedido con la id buscada"                
     else:
         response =(
             supabase.table("pedidos").select("*").execute()
@@ -139,7 +205,13 @@ def cortes():
                 return "Corte borrado exitosamente"
             else:
                 return "Error borrando corte", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarcorteid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('cortes.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún corte con la id buscada" 
     else:
         response =(
             supabase.table("cortes").select("*").execute()
@@ -233,7 +305,27 @@ def clientes():
                 return "Cliente borrado exitosamente"
             else:
                 return "Error borrando cliente", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarclienteid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('clientes.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún cliente con la id buscada"
+        if (metodo == "buscarNombre"):
+            texto = request.form["nombreBuscar"]
+            response = supabase.rpc('buscarclientenombre', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('clientes.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún cliente con el nombre buscado"
+        if (metodo == "buscarAbreviacion"):
+            texto = request.form["abreviacionBuscar"]
+            response = supabase.rpc('buscarclienteabreviacion', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('clientes.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún cliente con la abreviacion buscada" 
     else:
         response =(
             supabase.table("clientes").select("*").execute()
@@ -287,7 +379,27 @@ def colores():
                 return "Color borrado exitosamente"
             else:
                 return "Error borrando color", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarcolorid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('colores.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún color con la id buscada"
+        if (metodo == "buscarDescripcion"):
+            texto = request.form["descripcionBuscar"]
+            response = supabase.rpc('buscarcolordescripcion', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('colores.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún color con la descrpición buscada"
+        if (metodo == "buscarCodigo"):
+            texto = request.form["descripcionBuscar"]
+            response = supabase.rpc('buscarcolorcodigo', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('colores.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún color con el código buscado"
     else:
         response =(
             supabase.table("colores").select("*").execute()
@@ -335,7 +447,20 @@ def bodegas():
                 return "Bodega borrada exitosamente"
             else:
                 return "Error borrando bodega", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarbodegaid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('bodegas.html', datos = response.data)
+            else:
+                return "No se ha encontrado ninguna bodega con la id buscada"
+        if (metodo == "buscarDescripcion"):
+            texto = request.form["descripcionBuscar"]
+            response = supabase.rpc('buscarbodegadescripcion', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('bodegas.html', datos = response.data)
+            else:
+                return "No se ha encontrado ninguna bodega con la descrpición buscada"
     else:
         response =(
             supabase.table("bodegas").select("*").execute()
@@ -390,7 +515,20 @@ def vendedores():
                 return "Vendedor borrado exitosamente"
             else:
                 return "Error borrando vendedor", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarvendedorid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('vendedores.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún vendedor con la id buscada"
+        if (metodo == "buscarNombre"):
+            texto = request.form["nombreBuscar"]
+            response = supabase.rpc('buscarvendedornombre', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('vendedores.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún vendedor con el nombre buscado"
     else:
         response =(
             supabase.table("vendedores").select("*").execute()
@@ -442,7 +580,20 @@ def zonasVenta():
                 return "Zona de venta borrada exitosamente"
             else:
                 return "Error borrando zona de venta", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarzonaventaid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('zonasVenta.html', datos = response.data)
+            else:
+                return "No se ha encontrado ninguna zona de venta con la id buscada"
+        if (metodo == "buscarDescripcion"):
+            texto = request.form["descripcionBuscar"]
+            response = supabase.rpc('buscarzonaventadescripcion', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('zonasVenta.html', datos = response.data)
+            else:
+                return "No se ha encontrado ninguna zona de venta con la descripción buscada"
     else:
         response =(
             supabase.table("zona_venta").select("*").execute()
@@ -494,7 +645,20 @@ def tallas():
                 return "Talla borrada exitosamente"
             else:
                 return "Error borrando talla", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscartallaid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('tallas.html', datos = response.data)
+            else:
+                return "No se ha encontrado ninguna talla con la id buscada"
+        if (metodo == "buscarNTalla"):
+            texto = request.form["nTallaBuscar"]
+            response = supabase.rpc('buscartallanumerotalla', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('tallas.html', datos = response.data)
+            else:
+                return "No se ha encontrado ninguna talla con el número de talla buscado"
     else:
         response =(
             supabase.table("tallas").select("*").execute()
@@ -551,7 +715,27 @@ def productos():
                 return "Producto borrado exitosamente"
             else:
                 return "Error borrando producto", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarproductoid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('productos.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún producto con la id buscada"
+        if (metodo == "buscarNombre"):
+            texto = request.form["nombreBuscar"]
+            response = supabase.rpc('buscarproductonombre', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('productos.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún producto con el nombre buscado"
+        if (metodo == "buscarAbreviacion"):
+            texto = request.form["abreviacionBuscar"]
+            response = supabase.rpc('buscarproductoabreviacion', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('productos.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún producto con la abreviación buscada"
     else:
         response =(
             supabase.table("productos").select("*").execute()
@@ -603,7 +787,13 @@ def codigosEAN():
                 return "Código EAN borrado exitosamente"
             else:
                 return "Error borrando Código EAN", 500
-                
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarcodigoeanid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('codigosEAN.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún código EAN con la id buscada"
     else:
         response =(
             supabase.table("codigos_EAN").select("*").execute()
