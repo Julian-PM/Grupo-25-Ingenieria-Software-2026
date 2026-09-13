@@ -139,7 +139,17 @@ def pedidos():
             if response.data:
                 return render_template('pedidos.html', datos = response.data)
             else:
-                return "No se ha encontrado ningún pedido con la id buscada"                
+                return "No se ha encontrado ningún pedido con la id buscada"  
+        if(metodo == "verDetalle"):
+            idVerDetalle = request.form["verDetalleID"]  
+            response = (
+                        supabase.table("detalle_pedidos").select("*")
+                        .eq("id_pedido", idVerDetalle).execute()
+            )
+            if response.data:
+                return render_template('verDetalle.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún detalle de pedido asociado a la id inputada"            
     else:
         response =(
             supabase.table("pedidos").select("*").execute()

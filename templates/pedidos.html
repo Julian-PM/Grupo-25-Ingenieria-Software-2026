@@ -66,6 +66,7 @@
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#borrarModal">Borrar</button>
   <button type ="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#buscarIDModal">Buscar por ID</button>
   <button type="button" class="btn btn-success" onclick="createTableFromJSON()">Ver</button>
+  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#verDetalleModal">Ver detalle de pedido</button>
   <div class="container-fluid" id="tablaPedidos" onload="createTableFromJSON()"></div>
   
 </div>
@@ -229,5 +230,37 @@
   </div>
 </div>
 </body>
+
+<div class="modal" id="verDetalleModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Ver detalle de pedido</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="verDetalle" />
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+            <div class="mb-3 mt-3">
+                <label for="verDetalleIDForm" class="form-label">Id del pedido:</label>
+                <input type="int" class="form-control" id="verDetalleID" placeholder="Inserte id del pedido" name="verDetalleID">
+            </div>
+            <button type="submit" class="btn btn-primary">Ver detalle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 </html>
