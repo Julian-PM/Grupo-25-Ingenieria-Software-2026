@@ -51,48 +51,10 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaZonasVenta').appendChild(table);
+        document.getElementById('tablaDetallePedido').appendChild(table);
 
     }
 
-    function createTableFromJSON() {
-        var test = document.querySelector('#my_variable').value 
-        const data = JSON.parse(test)
-        if (!data || !data.length) return;
-
-        const table = document.createElement('table');
-        table.className = "table table-striped";
-        const thead = document.createElement('thead');
-        const tbody = document.createElement('tbody');
-        const headerRow = document.createElement('tr');
-
-        // Extract headers from the first object's keys
-        const headers = Object.keys(data[0]);
-        console.log(headers)
-        headers.forEach(key => {
-            const th = document.createElement('th');
-            th.textContent = key;
-            headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-
-        // Create rows for each data object
-        data.forEach((rowData) => {
-            const tr = document.createElement('tr');
-            headers.forEach(key => {
-            const td = document.createElement('td');
-            // Handle null/undefined or nested objects
-            const value = rowData[key];
-            td.textContent = (typeof value === 'object') ? JSON.stringify(value) : value;
-            tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
-        });
-
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        document.getElementById('tablaZonasVenta').appendChild(table);
-        } 
 </script>
 
 <body onload="inicializarDetalle()">
@@ -104,13 +66,9 @@
   <h1>Detalle de pedido</h1>
   <div id="mostrarIDPedido"></div>
   <!--Cada botón abrirá un modal-->
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearModal">Crear</button>
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#actualizarModal">Actualizar</button>
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#borrarModal">Borrar</button>
-  <button type ="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#buscarIDModal">Buscar por ID</button>
-  <button type ="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#buscarDescripcionModal">Buscar por Descripción</button>
-  <button type="button" class="btn btn-success" onclick="createTableFromJSON()">Ver</button>
-  <div class="container-fluid" id="tablaZonasVenta" onload="createTableFromJSON()"></div>
+
+  <button type="button" class="btn btn-success" href="pedidos.html">Volver</button>
+  <div class="container-fluid" id="tablaDetallePedido"></div>
   
 </div>
 

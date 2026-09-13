@@ -143,8 +143,9 @@ def pedidos():
         if(metodo == "verDetalle"):
             idVerDetalle = request.form["verDetalleID"]  
             response = (
-                        supabase.table("detalle_pedidos").select("*")
-                        .eq("id_pedido", idVerDetalle).execute()
+                        supabase.table("detalle_pedidos").select("*, producto_variantes!inner(descripcion)")
+                        .eq("id_pedido", idVerDetalle)
+                        .execute()
             )
             if response.data:
                 return render_template('verDetalle.html', datos = response.data)
