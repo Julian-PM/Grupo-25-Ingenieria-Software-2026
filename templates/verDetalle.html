@@ -20,6 +20,15 @@
         idMostrar.textContent = "Viendo el pedido de ID: " + idPedido[2];
         document.getElementById('mostrarIDPedido').appendChild(idMostrar);
 
+        /*const valores = Object.values(data);
+        const subtotales = 0;
+        array.forEach(element => {
+            
+        });
+        const subtotalMostrar = document.createElement('p');
+        subtotalMostrar.textContent = "Subtotal: ";
+        */
+
         const table = document.createElement('table');
         table.className = "table table-striped";
         const thead = document.createElement('thead');
@@ -52,9 +61,24 @@
         table.appendChild(thead);
         table.appendChild(tbody);
         document.getElementById('tablaDetallePedido').appendChild(table);
-
+        let values = 0;
+        for (let i = 1; i < table.rows.length; i++) {
+            const row = table.rows[i];
+            if (row.cells.length > 7) {
+                const cell = row.cells[7];
+                if(cell){
+                    values += parseInt(cell.textContent.trim());
+                }
+            }
+        const subtotalMostrar = document.createElement('p');
+        subtotalMostrar.textContent = "Subtotal: " + values;
+        document.getElementById('mostrarIDPedido').appendChild(subtotalMostrar);
+  }
     }
 
+    function calcularSubtotal() {
+        var tabla = document.getElementById()
+    }
 </script>
 
 <body onload="inicializarDetalle()">
