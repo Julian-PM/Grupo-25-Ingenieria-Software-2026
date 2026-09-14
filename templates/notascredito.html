@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Notas de Crédito - Comercial D Nix</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+
+<input type="hidden" id="my_variable" value='{{ datos | tojson }}'>
+
+<div class="container-fluid">
+
+    <h1>Notas de Crédito</h1>
+    <p>Elija una opción.</p>
+
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearModal">
+        Crear
+    </button>
+
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#actualizarModal">
+        Actualizar
+    </button>
+
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#borrarModal">
+        Borrar
+    </button>
+
+    <button class="btn btn-success" onclick="createTableFromJSON()">
+        Ver
+    </button>
+
+    <div id="tablaNotasCredito"></div>
+
+</div>
+
+
+<!-- CREAR -->
+
+<div class="modal" id="crearModal">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Crear Nota de Crédito</h4>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form method="POST" action="#">
+
+                    <input type="hidden" name="_method" value="post">
+
+                    <div class="mb-3">
+                        <label class="form-label">Número de Nota:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="numeroNotaCrear"
+                               name="numeroNotaCrear">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">ID Factura asociada:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="facturaAsociadaCrear"
+                               name="facturaAsociadaCrearNotaCrear">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha:</label>
+                        <input type="date"
+                               class="form-control"
+                               id="fechaCrear"
+                               name="fechaCrear">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Vendedor:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="vendedorCrear"
+                               name="vendedorCrear">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bodega:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="bodegaCrear"
+                               name="bodegaCrear">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cliente:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="clienteCrear"
+                               name="clienteCrear">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Lista de Precios:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="listaPreciosCrear"
+                               name="listaPreciosCrear">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descuento 1 (%):</label>
+                        <input type="number"
+                               step="0.01"
+                               class="form-control"
+                               id="descuento1Crear"
+                               name="descuento1Crear"
+                               value="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descuento 2 (%):</label>
+                        <input type="number"
+                               step="0.01"
+                               class="form-control"
+                               id="descuento2Crear"
+                               name="descuento2Crear"
+                               value="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descuento 3 (%):</label>
+                        <input type="number"
+                               step="0.01"
+                               class="form-control"
+                               id="descuento3Crear"
+                               name="descuento3Crear"
+                               value="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Total Descuento:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="totalDescuentoCrear"
+                               name="totalDescuentoCrear"
+                               value="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Total Neto:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="totalNetoCrear"
+                               name="totalNetoCrear"
+                               value="0"
+                               oninput="calcularCrear()">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">IVA (%):</label>
+                        <input type="number"
+                               class="form-control"
+                               id="ivaPorcentajeCrear"
+                               name="ivaPorcentajeCrear"
+                               value="19"
+                               readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Total IVA:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="totalIvaCrear"
+                               name="totalIvaCrear"
+                               value="0"
+                               readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Total Nota:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="totalNotaCrear"
+                               name="totalNotaCrear"
+                               value="0"
+                               readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Observación:</label>
+                        <textarea class="form-control"
+                                  id="observacionCrear"
+                                  name="observacionCrear"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Crear
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ACTUALIZAR -->
+
+<div class="modal" id="actualizarModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Actualizar Nota de Crédito</h4>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form method="POST" action="#">
+
+                    <input type="hidden" name="_method" value="put">
+
+                    <div class="mb-3">
+                        <label class="form-label">Id de la Nota de Crédito:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="idNotaActualizar"
+                               name="idNotaActualizar">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Actualizar
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- BORRAR -->
+
+<div class="modal" id="borrarModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Borrar Nota de Crédito</h4>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form method="POST" action="#">
+
+                    <input type="hidden" name="_method" value="delete">
+
+                    <div class="mb-3">
+                        <label class="form-label">Id de la Nota de Crédito:</label>
+                        <input type="number"
+                               class="form-control"
+                               id="idNotaBorrar"
+                               name="idNotaBorrar">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Borrar
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+function calcularCrear() {
+
+    const neto =
+        parseFloat(document.getElementById("totalNetoCrear").value) || 0;
+
+    const iva = neto * 0.19;
+
+    const total = neto + iva;
+
+    document.getElementById("totalIvaCrear").value =
+        Math.round(iva);
+
+    document.getElementById("totalNotaCrear").value =
+        Math.round(total);
+}
+
+
+function createTableFromJSON() {
+
+    const texto =
+        document.getElementById("my_variable").value;
+
+    const data = JSON.parse(texto);
+
+    if (!data || !data.length) {
+        return;
+    }
+
+    const contenedor =
+        document.getElementById("tablaNotasCredito");
+
+    contenedor.innerHTML = "";
+
+    const tabla =
+        document.createElement("table");
+
+    tabla.className =
+        "table table-striped mt-3";
+
+    const encabezado =
+        document.createElement("tr");
+
+    Object.keys(data[0]).forEach(campo => {
+
+        const th =
+            document.createElement("th");
+
+        th.textContent = campo;
+
+        encabezado.appendChild(th);
+
+    });
+
+    tabla.appendChild(encabezado);
+
+
+    data.forEach(fila => {
+
+        const tr =
+            document.createElement("tr");
+
+        Object.values(fila).forEach(valor => {
+
+            const td =
+                document.createElement("td");
+
+            td.textContent = valor;
+
+            tr.appendChild(td);
+
+        });
+
+        tabla.appendChild(tr);
+
+    });
+
+    contenedor.appendChild(tabla);
+}
+
+</script>
+
+</body>
+</html>
