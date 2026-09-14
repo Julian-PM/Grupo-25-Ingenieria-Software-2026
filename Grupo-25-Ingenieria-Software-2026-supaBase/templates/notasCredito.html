@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Notas de crédito - Comercial D Nix</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='app.css', v='2') }}" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+{% include '_flash_toast.html' %}
+<aside class="shared-sidebar">
+  <div class="shared-brand"><img class="shared-brand-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="Comercial D Nix"><span class="shared-brand-text">Comercial D Nix</span></div>
+  <div class="shared-caption">Operación</div>
+  <a href="{{ url_for('index') }}"><span class="shared-nav-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span><span>Panel de control</span></a>
+  <div class="shared-caption">Ventas</div>
+  <a class="active" href="{{ url_for('notasCredito') }}"><span class="shared-nav-icon"><i class="bi bi-receipt-cutoff" aria-hidden="true"></i></span><span>Notas de crédito</span></a>
+  <div class="shared-caption">Datos maestros</div>
+  <a href="{{ url_for('clientes') }}"><span class="shared-nav-icon"><i class="bi bi-person-vcard-fill" aria-hidden="true"></i></span><span>Clientes</span></a>
+  <a href="{{ url_for('productos') }}"><span class="shared-nav-icon"><i class="bi bi-box-seam-fill" aria-hidden="true"></i></span><span>Productos</span></a>
+  <a href="{{ url_for('vendedores') }}"><span class="shared-nav-icon"><i class="bi bi-person-badge-fill" aria-hidden="true"></i></span><span>Vendedores</span></a>
+  <a href="{{ url_for('bodegas') }}"><span class="shared-nav-icon"><i class="bi bi-building-fill" aria-hidden="true"></i></span><span>Bodegas</span></a>
+  <a href="{{ url_for('pedidos') }}"><span class="shared-nav-icon"><i class="bi bi-receipt-cutoff" aria-hidden="true"></i></span><span>Pedidos</span></a>
+</aside>
+<header class="shared-topbar"><input class="shared-search" type="search" placeholder="Buscar en el sistema..." aria-label="Buscar en el sistema"></header>
+<input type="hidden" id="my_variable" value='{{ datos | tojson }}'>
+
+<div class="container-fluid">
+  <div class="page-heading">
+    <div><div class="eyebrow">Ventas / Documentos</div><h1>Notas de crédito</h1><p>Consulta y filtra notas de crédito registradas.</p></div>
+  </div>
+
+  <div class="data-card">
+    <div class="data-card-header"><div><h2>Listado de notas de crédito</h2><span>Vista de solo lectura</span></div></div>
+    <form class="notas-filtros" method="GET" action="{{ url_for('notasCredito') }}">
+      <div><label for="filtroFolio">Folio</label><input id="filtroFolio" name="folio" type="search" value="{{ filtros.folio }}"></div>
+      <div><label for="filtroCliente">Cliente</label><input id="filtroCliente" name="cliente" type="search" value="{{ filtros.cliente }}"></div>
+      <div><label for="filtroFactura">Factura</label><input id="filtroFactura" name="factura_referencia" type="search" value="{{ filtros.factura_referencia }}"></div>
+      <div><label for="filtroDesde">Desde</label><input id="filtroDesde" name="fecha_desde" type="date" value="{{ filtros.fecha_desde }}"></div>
+      <div><label for="filtroHasta">Hasta</label><input id="filtroHasta" name="fecha_hasta" type="date" value="{{ filtros.fecha_hasta }}"></div>
+      <div class="notas-filtros__acciones"><button class="btn btn-primary icon-button" type="submit"><i class="bi bi-search" aria-hidden="true"></i><span>Filtrar</span></button><a class="btn btn-outline-secondary icon-button" href="{{ url_for('notasCredito') }}"><i class="bi bi-x-circle" aria-hidden="true"></i><span>Limpiar</span></a></div>
+    </form>
+    {% if not datos and filtro_aplicado %}<div class="empty-state empty-state--filtered">No hay resultados para ese criterio.</div>{% endif %}
+    <div class="data-table-wrap data-table-wrap--scroll">
+      <table class="table table-hover notas-tabla">
+        <thead><tr>
+          {% for key, label in [('folio', 'Folio'), ('fecha', 'Fecha'), ('cliente', 'Cliente'), ('factura', 'Factura'), ('monto', 'Monto'), ('motivo', 'Motivo'), ('estado', 'Estado')] %}
+          {% set next_dir = 'asc' if orden_por != key or orden_dir == 'desc' else 'desc' %}
+          <th><a href="{{ orden_links[key] }}" class="notas-sort {% if orden_por == key %}notas-sort--active{% endif %}">{{ label }} {% if orden_por == key %}<i class="bi bi-chevron-{{ 'up' if orden_dir == 'asc' else 'down' }}" aria-hidden="true"></i>{% endif %}</a></th>
+          {% endfor %}
+        </tr></thead>
+        <tbody>
+          {% for nota in datos %}
+          <tr class="nota-row" data-nota-index="{{ loop.index0 }}" tabindex="0">
+            <td>{{ nota.folio }}</td><td>{{ nota.fecha }}</td><td>{{ nota.cliente_nombre }}</td><td>{{ nota.factura_folio }}</td><td>{{ nota.monto_total }}</td><td>{{ nota.motivo }}</td><td>{{ nota.estado }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if not datos and not filtro_aplicado %}<div class="empty-state">Sin resultados todavía</div>{% endif %}
+  </div>
+</div>
+
+<div class="modal fade" id="detalleNotaModal" tabindex="-1" aria-labelledby="detalleNotaTitulo" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable"><div class="modal-content">
+    <div class="modal-header"><h2 class="modal-title" id="detalleNotaTitulo">Detalle de nota de crédito</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+    <div class="modal-body"><dl class="row mb-0" id="detalleNotaContenido"></dl></div>
+  </div></div>
+</div>
+
+<script>
+  const notas = {{ datos | tojson }};
+  const detalle = document.getElementById('detalleNotaContenido');
+  const modal = new bootstrap.Modal(document.getElementById('detalleNotaModal'));
+  const camposDetalle = [['folio', 'Folio'], ['fecha', 'Fecha'], ['cliente_nombre', 'Cliente'], ['factura_folio', 'Factura'], ['monto_neto', 'Monto neto'], ['monto_impuesto', 'Impuesto'], ['monto_total', 'Monto total'], ['motivo', 'Motivo'], ['estado', 'Estado']];
+  document.querySelectorAll('.nota-row').forEach(function (fila) {
+    fila.addEventListener('click', function () {
+      const nota = notas[Number(fila.dataset.notaIndex)];
+      detalle.innerHTML = camposDetalle.map(function (campo) { return '<dt class="col-sm-4">' + campo[1] + '</dt><dd class="col-sm-8">' + (nota[campo[0]] ?? '') + '</dd>'; }).join('');
+      modal.show();
+    });
+  });
+</script>
+</body>
+</html>
