@@ -26,6 +26,292 @@ supabase: Client = create_client(
     os.environ.get("SUPABASE_PUBLISHABLE_KEY")
 )
 
+# index() es básicamente lo que se carga inicialmente. Por ahora,
+# está puesto que cargue el cliente.html automáticamente,
+# pero eso lo cambiaremos a un menú principal y lo dividiremos
+# cuando tengamos las otras páginas.
+
+# NOTA: las páginas html tienen que estar dentro de templates
+
+@app.route('/facturas.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def facturas():
+    if request.method == 'POST':
+        metodo = request.form['_method']
+        if (metodo == "post"):
+            numeroFactura = request.form['numeroFacturaCrear']
+            fecha = request.form['fechaFacturaCrear']
+            razonSocial = request.form['razonSocialCrear']
+            rut = request.form['rutCrear']
+            direccion = request.form['direccionCrear']
+            giro = request.form['giroCrear']
+            detalle = request.form['detalleCrear']
+            formaPago = request.form['formaPagoCrear']
+            montoNeto = request.form['netoCrear']
+            iva = request.form['ivaCrear']
+            total = request.form['totalCrear']
+            idPedido = request.form['idPedidoCrear']
+            idCliente = request.form['idClienteCrear']
+
+            response = (
+        
+                #Este es el comando para insertar los datos a la base de datos.
+                supabase.table("facturas").insert({"numero_factura": numeroFactura, "fecha": fecha,
+                                "razon_social": razonSocial, "rut": rut, "direccion": direccion, "giro": giro,
+                                "detalle": detalle, "forma_pago": formaPago, "neto": montoNeto, "iva": iva, "total": total,
+                                "id_pedido": idPedido, "id_cliente": idCliente
+                                })
+                                .select("id_pedido")
+                                .execute()
+            )
+            if response.data:
+                return render_template('facturas.html', datos = response.data)
+            else:
+                return "Error creando detalle del pedido", 500
+        if (metodo == "put"):
+            idFacturaACambiar = request.form['idFacturaActualizar']
+            numeroFactura = request.form['numeroFacturaActualizar']
+            fecha = request.form['fechaFacturaActualizar']
+            razonSocial = request.form['razonSocialActualizar']
+            rut = request.form['rutActualizar']
+            direccion = request.form['direccionActualizar']
+            giro = request.form['giroActualizar']
+            detalle = request.form['detalleActualizar']
+            formaPago = request.form['formaPagoActualizar']
+            montoNeto = request.form['netoActualizar']
+            iva = request.form['ivaActualizar']
+            total = request.form['totalActualizar']
+            idPedido = request.form['idPedidoActualizar']
+            idCliente = request.form['idClienteActualizar']
+            response = (
+                        
+                supabase.table("facturas").update({"fecha": fecha,
+                                            "razonSocial": razonSocial, "rut": rut, "direccion": direccion, 
+                                            "giro": giro, "detalle": detalle, "forma_pago": formaPago, "neto": montoNeto, "iva": iva, "total": total,
+                                            "id_pedido": idPedido, "id_cliente": idCliente
+                                            })
+                                            .eq("id_factura", idFacturaACambiar)
+                                            .select("id_factura")
+                                            .execute()
+            )
+            if response.data:
+                return "Factura actualizada exitosamente"
+            else:
+                return "Error actualizando factura", 500
+        if (metodo == "delete"):
+            idABorrar = request.form['idFacturaBorrar']
+            response = (
+                        supabase.table("facturas").delete()
+                        .eq("id_factura", idABorrar)
+                        .execute()
+            )
+            if response.data:
+                return "Factura borrada exitosamente"
+            else:
+                return "Error borrando factura", 500
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarpedidoid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('facturas.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún pedido con la id buscada"  
+    else:
+        response =(
+            supabase.table("facturas").select("*").execute()
+        )
+                
+        return render_template('facturas.html', datos = response.data)
+
+@app.route('/notascredito.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def notasCredito():
+    if request.method == 'POST':
+        metodo = request.form['_method']
+        if (metodo == "post"):
+            numeroNota = request.form['numeroNotaCrear']
+            fecha = request.form['fechaCrear']
+            vendedor = request.form['vendedorCrear']
+            bodega = request.form['bodegaCrear']
+            cliente = request.form['clienteCrear']
+            facturaAsociada = request.form['facturaAsociadaCrear']
+            listaPrecios = request.form['listaPreciosCrear']
+            descuento1 = request.form["descuento1Crear"]
+            descuento2 = request.form["descuento2Crear"]
+            descuento3 = request.form["descuento3Crear"]
+            totalDescuento = request.form["totalDescuentoCrear"]
+            totalNeto = request.form["totalNetoCrear"]
+            iva = request.form["ivaPorcentajeCrear"]
+            totalIva = request.form["totalIvaCrear"]
+            totalNota = request.form["totalNotaCrear"]
+            observacion = request.form["observacionCrear"]
+            creado_en = request.form["creadoEnCrear"]
+
+            response = (
+        
+                #Este es el comando para insertar los datos a la base de datos.
+                supabase.table("notas_credito").insert({"numero_nota": numeroNota,
+                                "fecha": fecha, "id_factura": facturaAsociada, "id_cliente": cliente, "id_vendedor": vendedor,
+                                "id_bodega":bodega,"lista_precios": listaPrecios ,"descuento1": descuento1,"descuento2": descuento2,"descuento3": descuento3, "total_descuento":totalDescuento,
+                                "total_neto": totalNeto, "iva_porcentaje": iva, "total_iva": totalIva,"total_nota": totalNota,"observacion": observacion,"creado_en": creado_en
+                                })
+                                .select("id_pedido")
+                                .execute()
+            )
+            if response.data:
+                return render_template('notascredito.html', datos = response.data)
+            else:
+                return "Error creando detalle del pedido", 500
+        if (metodo == "put"):
+            idAActualizar = request.form['idNotaActualizar']
+            numeroNota = request.form['numeroNotaActualizar']
+            fecha = request.form['fechaActualizar']
+            vendedor = request.form['vendedorActualizar']
+            bodega = request.form['bodegaActualizar']
+            cliente = request.form['clienteActualizar']
+            facturaAsociada = request.form['facturaAsociadaActualizar']
+            listaPrecios = request.form['listaPreciosActualizar']
+            descuento1 = request.form["descuento1Actualizar"]
+            descuento2 = request.form["descuento2Actualizar"]
+            descuento3 = request.form["descuento3Actualizar"]
+            totalDescuento = request.form["totalDescuentoActualizar"]
+            totalNeto = request.form["totalNetoActualizar"]
+            iva = request.form["ivaPorcentajeActualizar"]
+            totalIva = request.form["totalIvaActualizar"]
+            totalNota = request.form["totalNotaActualizar"]
+            observacion = request.form["observacionActualizar"]
+            creado_en = request.form["creadoEnActualizar"]
+            response = (
+                        
+                supabase.table("notas_credito").update({"numero_nota": numeroNota,
+                                "fecha": fecha, "id_factura": facturaAsociada, "id_cliente": cliente, "id_vendedor": vendedor,
+                                "id_bodega":bodega,"lista_precios": listaPrecios ,"descuento1": descuento1,"descuento2": descuento2,"descuento3": descuento3, "total_descuento":totalDescuento,
+                                "total_neto": totalNeto, "iva_porcentaje": iva, "total_iva": totalIva,"total_nota": totalNota,"observacion": observacion,"creado_en": creado_en
+                                })
+                                            .eq("id_nota", idAActualizar)
+                                            .select("id_nota")
+                                            .execute()
+            )
+            if response.data:
+                return "Nota de crédito actualizada exitosamente"
+            else:
+                return "Error actualizando nota de crédito", 500
+        if (metodo == "delete"):
+            idABorrar = request.form['idDetalleBorrar']
+            response = (
+                        supabase.table("notas_credito").delete()
+                        .eq("id_nota", idABorrar)
+                        .execute()
+            )
+            if response.data:
+                return "Nota de crédito borrada exitosamente"
+            else:
+                return "Error borrando Nota de crédito", 500
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarpedidoid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('pedidos.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún pedido con la id buscada"  
+        if(metodo == "verDetalle"):
+            idVerDetalle = request.form["verDetalleID"]  
+            response = (
+                                supabase.table("detalle_pedidos").select("*, producto_variantes!inner(descripcion)", "stock_variante_actual!inner(stock)")
+                                .eq("id_pedido", idVerDetalle)
+                                .execute()
+            )
+            if response.data:
+                return render_template('verDetalle.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún detalle de pedido asociado a la id inputada"            
+    else:
+        response =(
+            supabase.table("notas_credito").select("*").execute()
+        )
+                
+        return render_template('notascredito.html', datos = response.data)
+
+@app.route('/crudDetallePedido.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def detallePedidos():
+    if request.method == 'POST':
+        metodo = request.form['_method']
+        if (metodo == "post"):
+            idPedido = request.form['IDPedido']
+            idVariante = request.form['IDVariante']
+            cantidad = request.form['cantidad']
+            precioU = request.form['precioUnitario']
+            subtotal = precioU * cantidad
+            observacion = request.form['observacion']
+
+            response = (
+        
+                #Este es el comando para insertar los datos a la base de datos.
+                supabase.table("detalle_pedidos").insert({"id_pedido": idPedido, "id_variante": idVariante,
+                                "cantidad": cantidad, "precio_unitario": precioU, "subtotal": subtotal, "observacion": observacion
+                                })
+                                .select("id_pedido")
+                                .execute()
+            )
+            if response.data:
+                return render_template('crudDetallePedido.html', datos = response.data)
+            else:
+                return "Error creando detalle del pedido", 500
+        if (metodo == "put"):
+            idDetalle = request.form['IDDetalle']
+            idPedido = request.form['IDPedido']
+            idVariante = request.form['IDVariante']
+            cantidad = request.form['cantidad']
+            precioU = request.form['precioUnitario']
+            subtotal = precioU * cantidad
+            observacion = request.form['observacion']
+            response = (
+                        
+                supabase.table("detalle_pedidos").update({"id_pedido": idPedido, "id_variante": idVariante,
+                                            "cantidad": cantidad, "precio_unitario": precioU, "subtotal": subtotal, "observacion": observacion
+                                            })
+                                            .eq("id_detalle_pedido", idDetalle)
+                                            .select("id_pedido")
+                                            .execute()
+            )
+            if response.data:
+                return "Detalle del pedido actualizado exitosamente"
+            else:
+                return "Error actualizando detalle del pedido", 500
+        if (metodo == "delete"):
+            idABorrar = request.form['idDetalleBorrar']
+            response = (
+                        supabase.table("detalle_pedidos").delete()
+                        .eq("id_detalle_pedidos", idABorrar)
+                        .execute()
+            )
+            if response.data:
+                return "Detalle de pedido borrado exitosamente"
+            else:
+                return "Error borrando detalle de pedido", 500
+        if (metodo == "buscarID"):
+            texto = request.form["idBuscar"]
+            response = supabase.rpc('buscarpedidoid', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('crudDetallePedido.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún pedido con la id buscada"  
+        if(metodo == "verDetalle"):
+            idVerDetalle = request.form["verDetalleID"]  
+            response = (
+                                supabase.table("detalle_pedidos").select("*, producto_variantes!inner(descripcion)", "stock_variante_actual!inner(stock)")
+                                .eq("id_pedido", idVerDetalle)
+                                .execute()
+            )
+            if response.data:
+                return render_template('verDetalle.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún detalle de pedido asociado a la id inputada"            
+    else:
+        response =(
+            supabase.table("detalle_pedidos").select("*").execute()
+        )
+                
+        return render_template('crudDetallePedido.html', datos = response.data)
+
 SYSTEM_PARAMETER_DEFAULTS = {
     "id": 1,
     "razon_social": "",
@@ -97,7 +383,9 @@ def pedidos():
                 response = (
                     supabase.table("pedidos").insert({"cliente_asociado": cliente, "fecha_pedido": fechaPedido,
                             "fecha_entrega": fechaLimite, "vendedor_asociado": vendedor
-                            }).execute()
+                            })
+                  .select("id_pedido")
+                  .execute()
                 )
             except APIError:
                 flash("No se pudo crear el pedido. Revisa el cliente y vendedor seleccionados", "error")
@@ -151,7 +439,18 @@ def pedidos():
             if response.data:
                 return render_template('pedidos.html', datos = response.data)
             else:
-                return "No se ha encontrado ningún pedido con la id buscada"                
+                return "No se ha encontrado ningún pedido con la id buscada"  
+        if(metodo == "verDetalle"):
+            idVerDetalle = request.form["verDetalleID"]  
+            response = (
+                        supabase.table("detalle_pedidos").select("*, producto_variantes!inner(descripcion)", "stock_variante_actual!inner(stock)")
+                        .eq("id_pedido", idVerDetalle)
+                        .execute()
+            )
+            if response.data:
+                return render_template('verDetalle.html', datos = response.data)
+            else:
+                return "No se ha encontrado ningún detalle de pedido asociado a la id inputada"            
     else:
         response =(
             supabase.table("pedidos").select("*").execute()
@@ -524,16 +823,6 @@ def bodegas():
                 return "No se ha encontrado ninguna bodega con la descrpición buscada"
     else:
         bodegas_response = supabase.table("bodegas").select("*").execute()
-        inventario_disponible = True
-        try:
-            inventario_response = supabase.table("inventario").select("*").execute()
-        except APIError as error:
-            if "PGRST205" not in str(error):
-                raise
-            inventario_data = []
-            inventario_disponible = False
-        else:
-            inventario_data = inventario_response.data
         productos_response = supabase.table("productos").select("*").execute()
         tallas_response = supabase.table("tallas").select("*").execute()
         colores_response = supabase.table("colores").select("*").execute()
@@ -541,8 +830,6 @@ def bodegas():
         return render_template(
             'bodegas.html',
             datos=bodegas_response.data,
-            inventario=inventario_data,
-            inventario_disponible=inventario_disponible,
             productos=productos_response.data,
             tallas=tallas_response.data,
             colores=colores_response.data

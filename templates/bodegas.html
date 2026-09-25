@@ -152,6 +152,39 @@
   </div>
 </div>
 
+<div class="modal" id="actualizarModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Actualizar Bodega</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="put" />
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+            <div class="mb-3 mt-3">
+                <label for="IDidBodegaActualizar" class="form-label">Id de la bodega a actualizar:</label>
+                <input type="text" class="form-control" id="IDidBodegaActualizar" placeholder="Inserte id de la bodega" name="IdBodegaActualizar">
+            </div>
+            <div class="mb-3">
+                <label for="descripcionForm" class="form-label">Descripción:</label>
+                <input type="text" class="form-control" id="descripcionForm" placeholder="Inserte descripción" name="descripcionActualizar">
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+  </div>
+</div>
 <div class="modal" id="crearInventarioModal">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
@@ -172,67 +205,6 @@
         </form>
       </div>
       <div class="modal-footer"><button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button></div>
-    </div>
-  </div>
-</div>
-
-{% for registro in inventario %}
-<div class="modal" id="actualizarInventarioModal{{ registro.id_inventario }}">
-  <div class="modal-dialog modal-dialog-scrollable"><div class="modal-content">
-    <div class="modal-header"><h4 class="modal-title">Actualizar inventario</h4><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-      <form method="POST" role="form" action="#">
-        <input type="hidden" name="_method" value="inventario_put"><input type="hidden" name="idInventarioActualizar" value="{{ registro.id_inventario }}">
-        <div class="form-section-title">Ubicación y variante</div>
-        <div class="mb-3"><label class="form-label" for="idBodegaInventarioActualizar{{ registro.id_inventario }}">Bodega:</label><select class="form-select" id="idBodegaInventarioActualizar{{ registro.id_inventario }}" name="idBodegaInventarioActualizar" required>{% for bodega in datos %}<option value="{{ bodega.id_bodega }}" {% if bodega.id_bodega == registro.id_bodega %}selected{% endif %}>{{ bodega.id_bodega }} - {{ bodega.descripcion }}</option>{% endfor %}</select></div>
-        <div class="mb-3"><label class="form-label" for="idProductoInventarioActualizar{{ registro.id_inventario }}">Producto:</label><select class="form-select" id="idProductoInventarioActualizar{{ registro.id_inventario }}" name="idProductoInventarioActualizar" required>{% for producto in productos %}<option value="{{ producto.id_producto }}" {% if producto.id_producto == registro.id_producto %}selected{% endif %}>{{ producto.id_producto }} - {{ producto.descripcion }}</option>{% endfor %}</select></div>
-        <div class="mb-3"><label class="form-label" for="idTallaInventarioActualizar{{ registro.id_inventario }}">Talla:</label><select class="form-select" id="idTallaInventarioActualizar{{ registro.id_inventario }}" name="idTallaInventarioActualizar" required>{% for talla in tallas %}<option value="{{ talla.id_talla }}" {% if talla.id_talla == registro.id_talla %}selected{% endif %}>{{ talla.id_talla }} - {{ talla.talla }}</option>{% endfor %}</select></div>
-        <div class="mb-3"><label class="form-label" for="idColorInventarioActualizar{{ registro.id_inventario }}">Color:</label><select class="form-select" id="idColorInventarioActualizar{{ registro.id_inventario }}" name="idColorInventarioActualizar" required>{% for color in colores %}<option value="{{ color.id_color }}" {% if color.id_color == registro.id_color %}selected{% endif %}>{{ color.id_color }} - {{ color.descripcion }}</option>{% endfor %}</select></div>
-        <div class="mb-3"><label class="form-label" for="cantidadInventarioActualizar{{ registro.id_inventario }}">Cantidad:</label><input type="number" class="form-control" id="cantidadInventarioActualizar{{ registro.id_inventario }}" name="cantidadInventarioActualizar" min="0" value="{{ registro.cantidad }}" required></div>
-        <button type="submit" class="btn btn-primary">Actualizar</button>
-      </form>
-    </div>
-    <div class="modal-footer"><button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button></div>
-  </div></div>
-</div>
-<div class="modal" id="borrarInventarioModal{{ registro.id_inventario }}">
-  <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">Borrar inventario</h4><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p>¿Borrar el registro {{ registro.id_inventario }}?</p><form method="POST" action="#"><input type="hidden" name="_method" value="inventario_delete"><input type="hidden" name="idInventarioBorrar" value="{{ registro.id_inventario }}"><button type="submit" class="btn btn-primary">Borrar</button></form></div></div></div>
-</div>
-{% endfor %}
-
-<div class="modal" id="actualizarModal">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Actualizar Bodega</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <!-- Modal body -->
-      <div class="modal-body">
-        <form method="POST" role="form" action="#">
-            <input type="hidden" name="_method" value="put" />
-            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
-          <div class="form-section-title">Información de la bodega</div>
-            <div class="mb-3 mt-3">
-                <label for="IDidBodegaActualizar" class="form-label">Id de la bodega a actualizar:</label>
-                <input type="text" class="form-control" id="IDidBodegaActualizar" placeholder="Inserte id de la bodega" name="IdBodegaActualizar">
-            </div>
-            <div class="mb-3">
-                <label for="descripcionForm" class="form-label">Descripción:</label>
-                <input type="text" class="form-control" id="descripcionForm" placeholder="Inserte descripción" name="descripcionActualizar">
-            </div>
-            <button type="submit" class="btn btn-primary">Actualizar</button>
-        </form>
-      </div>
-
-      <!-- Modal footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-      </div>
-
     </div>
   </div>
 </div>
@@ -258,6 +230,97 @@
             </div>
             <button type="submit" class="btn btn-primary">Borrar</button>
         </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+{% for registro in inventario %}
+<div class="modal" id="actualizarInventarioModal{{ registro.id_inventario }}">
+  <div class="modal-dialog modal-dialog-scrollable"><div class="modal-content">
+    <div class="modal-header"><h4 class="modal-title">Actualizar inventario</h4><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <form method="POST" role="form" action="#">
+        <input type="hidden" name="_method" value="inventario_put"><input type="hidden" name="idInventarioActualizar" value="{{ registro.id_inventario }}">
+        <div class="form-section-title">Ubicación y variante</div>
+        <div class="mb-3"><label class="form-label" for="idBodegaInventarioActualizar{{ registro.id_inventario }}">Bodega:</label><select class="form-select" id="idBodegaInventarioActualizar{{ registro.id_inventario }}" name="idBodegaInventarioActualizar" required>{% for bodega in datos %}<option value="{{ bodega.id_bodega }}" {% if bodega.id_bodega == registro.id_bodega %}selected{% endif %}>{{ bodega.id_bodega }} - {{ bodega.descripcion }}</option>{% endfor %}</select></div>
+        <div class="mb-3"><label class="form-label" for="idProductoInventarioActualizar{{ registro.id_inventario }}">Producto:</label><select class="form-select" id="idProductoInventarioActualizar{{ registro.id_inventario }}" name="idProductoInventarioActualizar" required>{% for producto in productos %}<option value="{{ producto.id_producto }}" {% if producto.id_producto == registro.id_producto %}selected{% endif %}>{{ producto.id_producto }} - {{ producto.descripcion }}</option>{% endfor %}</select></div>
+        <div class="mb-3"><label class="form-label" for="idTallaInventarioActualizar{{ registro.id_inventario }}">Talla:</label><select class="form-select" id="idTallaInventarioActualizar{{ registro.id_inventario }}" name="idTallaInventarioActualizar" required>{% for talla in tallas %}<option value="{{ talla.id_talla }}" {% if talla.id_talla == registro.id_talla %}selected{% endif %}>{{ talla.id_talla }} - {{ talla.talla }}</option>{% endfor %}</select></div>
+        <div class="mb-3"><label class="form-label" for="idColorInventarioActualizar{{ registro.id_inventario }}">Color:</label><select class="form-select" id="idColorInventarioActualizar{{ registro.id_inventario }}" name="idColorInventarioActualizar" required>{% for color in colores %}<option value="{{ color.id_color }}" {% if color.id_color == registro.id_color %}selected{% endif %}>{{ color.id_color }} - {{ color.descripcion }}</option>{% endfor %}</select></div>
+        <div class="mb-3"><label class="form-label" for="cantidadInventarioActualizar{{ registro.id_inventario }}">Cantidad:</label><input type="number" class="form-control" id="cantidadInventarioActualizar{{ registro.id_inventario }}" name="cantidadInventarioActualizar" min="0" value="{{ registro.cantidad }}" required></div>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+      </form>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button></div>
+  </div></div>
+</div>
+<div class="modal" id="borrarInventarioModal{{ registro.id_inventario }}">
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">Borrar inventario</h4><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p>¿Borrar el registro {{ registro.id_inventario }}?</p><form method="POST" action="#"><input type="hidden" name="_method" value="inventario_delete"><input type="hidden" name="idInventarioBorrar" value="{{ registro.id_inventario }}"><button type="submit" class="btn btn-primary">Borrar</button></form></div></div></div>
+</div>
+{% endfor %}
+
+<div class="modal" id="buscarIDModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Buscar Bodegas</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
+         <!-- Action es a dónde los manda, y # los manda a la misma página-->
+        <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="buscarID" />
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+            <div class="mb-3 mt-3">
+                <label for="idForm" class="form-label">Por ID:</label>
+                <input type="text" class="form-control" id="idBuscar" placeholder="Inserte ID a buscar" name="idBuscar">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="buscarDescripcionModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Buscar Bodegas</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
+         <!-- Action es a dónde los manda, y # los manda a la misma página-->
+        <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="buscarDescripcion" />
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+            <div class="mb-3 mt-3">
+                <label for="descripcionForm" class="form-label">Por Descripción:</label>
+                <input type="text" class="form-control" id="descripcionBuscar" placeholder="Inserte descripción a buscar" name="descripcionBuscar">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
       </div>
 
       <!-- Modal footer -->
