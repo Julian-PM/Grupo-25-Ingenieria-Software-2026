@@ -1,0 +1,9 @@
+Las instrucciones SQL no se hacen directamente; Supabase tiene una librería python que funciona de intermediario.
+Por ejemplo,
+supabase.table("colores").insert({"codigo_color": codigo, "descripcion": descripcion,
+                        }).execute()
+Es el código para insertar una nueva fila a la tabla 'colores', cuyo valor para la columna "codigo_color" es la variable 'codigo',
+y el valor para la columna "descripcion" es la variable descripcion.
+Es equivalente a la expresión:
+INSERT INTO colores (codigo_color, descripcion);
+VALUES (codigo, descripcion)
