@@ -4,10 +4,76 @@
   <title>Clientes - Comercial D Nix</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta id="foo" data-name="{{datos.data}}">
-  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='app.css', v='2') }}" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    :root {
+      --surface: #ffffff;
+      --canvas: #f5f7f6;
+      --ink: #17231f;
+      --muted: #728079;
+      --line: #e4e9e6;
+      --accent: #9acd32;
+      --accent-dark: #527d13;
+      --accent-soft: #eff8df;
+      --danger-soft: #fff1f1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 25px; }
+    .eyebrow { margin-bottom: 7px; color: var(--accent-dark); font-size: .68rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .page-heading h1 { margin: 0; color: var(--ink); font-size: clamp(1.6rem, 3vw, 2.05rem); font-weight: 800; letter-spacing: -.04em; }
+    .page-heading p { margin: 6px 0 0; color: var(--muted); font-size: .86rem; }
+    .heading-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+    .btn { border-radius: 7px; font-size: .78rem; font-weight: 700; }
+    .btn-success { color: #31470e; background: var(--accent); border-color: var(--accent); }
+    .btn-success:hover { color: #26370b; background: #a9d94b; border-color: #a9d94b; }
+    .btn-outline-secondary { color: #68756f; border-color: #d4ddd7; }
+    .btn-outline-secondary:hover { color: var(--ink); background: #edf2ee; border-color: #c7d2ca; }
+
+    .data-card { overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(39, 59, 47, .04); }
+    .data-card-header { display: flex; align-items: center; justify-content: space-between; padding: 17px 21px; border-bottom: 1px solid var(--line); }
+    .data-card-header h2 { margin: 0; font-size: .96rem; font-weight: 800; }
+    .data-card-header span { color: var(--muted); font-size: .73rem; }
+    #tablaClientes { overflow-x: auto; padding: 0; }
+    #tablaClientes table { width: 100%; min-width: 1000px; margin: 0; border: 0 !important; color: #526059; font-size: .76rem; }
+    #tablaClientes th { padding: 13px 18px !important; color: #89958f; background: #fafcfb; border: 0 !important; border-bottom: 1px solid var(--line) !important; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    #tablaClientes td { padding: 14px 18px !important; border: 0 !important; border-bottom: 1px solid #eef2ef !important; white-space: nowrap; }
+    #tablaClientes tr:last-child td { border-bottom: 0 !important; }
+    #tablaClientes tbody tr:hover { background: #fbfdf9; }
+
+    .modal-content { overflow: hidden; border: 0; border-radius: 12px; box-shadow: 0 20px 60px rgba(26, 46, 33, .2); }
+    .modal-header { padding: 20px 24px; background: #fbfdfb; border-bottom: 1px solid var(--line); }
+    .modal-title { font-size: 1.05rem; font-weight: 800; }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 15px 24px; background: #fbfdfb; border-top: 1px solid var(--line); }
+    .form-label { margin-bottom: 6px; color: #526059; font-size: .76rem; font-weight: 700; }
+    .form-control { padding: 10px 12px; border-color: #dce4de; border-radius: 7px; font-size: .8rem; }
+    .form-control:focus { border-color: #add268; box-shadow: 0 0 0 .2rem rgba(154, 205, 50, .16); }
+    .btn-primary { color: #31470e; background: var(--accent); border-color: var(--accent); }
+    .btn-primary:hover { color: #26370b; background: #a9d94b; border-color: #a9d94b; }
+    .btn-danger { color: #a84949; background: var(--danger-soft); border-color: #f0d2d2; }
+
+    @media (max-width: 600px) {
+      .page-heading { flex-direction: column; }
+      .heading-actions { justify-content: flex-start; }
+    }
+
+    @media (max-width: 540px) {
+    }
+  </style>
 </head>
 <script>
 
@@ -154,23 +220,26 @@
 </script>
 
 <body>
+  {% include '_flash_toast.html' %}
 <input type="hidden"  id="my_variable" value='{{ datos | tojson }}'>
 
+<aside class="shared-sidebar"><div class="shared-brand"><img class="shared-brand-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="Comercial D Nix"><span class="shared-brand-text">Comercial D Nix</span></div><div class="shared-caption">Operación</div><a href="{{ url_for('index') }}"><span class="shared-nav-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span><span>Panel de control</span></a><div class="shared-caption">Datos maestros</div><a class="active" href="{{ url_for('clientes') }}"><span class="shared-nav-icon"><i class="bi bi-person-vcard-fill" aria-hidden="true"></i></span><span>Clientes</span></a><a href="{{ url_for('productos') }}"><span class="shared-nav-icon"><i class="bi bi-box-seam-fill" aria-hidden="true"></i></span><span>Productos</span></a><a href="{{ url_for('vendedores') }}"><span class="shared-nav-icon"><i class="bi bi-person-badge-fill" aria-hidden="true"></i></span><span>Vendedores</span></a><a href="{{ url_for('bodegas') }}"><span class="shared-nav-icon"><i class="bi bi-building-fill" aria-hidden="true"></i></span><span>Bodegas</span></a><a href="{{ url_for('pedidos') }}"><span class="shared-nav-icon"><i class="bi bi-receipt-cutoff" aria-hidden="true"></i></span><span>Pedidos</span></a></aside>
+<header class="shared-topbar"><input class="shared-search" type="search" placeholder="Buscar en el sistema..." aria-label="Buscar en el sistema"></header>
 
-<div class="container-fluid" >
-  
-  <h1>Clientes</h1>
-  <p>Elija una opción.</p>
-  <!--Cada botón abrirá un modal-->
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearModal">Crear</button>
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#actualizarModal">Actualizar</button>
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#borrarModal">Borrar</button>
-  <button type ="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#buscarIDModal">Buscar por ID</button>
-  <button type ="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#buscarNombreModal">Buscar por Nombre</button>
-  <button type ="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#buscarAbreviacionModal">Buscar por Abreviación</button>
-  <button type="button" class="btn btn-success" onclick="createTableFromJSON()">Ver</button>
-  <div class="container-fluid" id="tablaClientes" onload="createTableFromJSON()"></div>
-  
+<div class="container-fluid">
+  <div class="page-heading">
+    <div><div class="eyebrow">Datos maestros / Clientes</div><h1>Clientes</h1><p>Administra la información comercial y de contacto.</p></div>
+    <div class="heading-actions">
+      <button type="button" class="btn btn-outline-secondary icon-button" data-bs-toggle="modal" data-bs-target="#borrarModal"><i class="bi bi-trash3" aria-hidden="true"></i><span>Eliminar</span></button>
+      <button type="button" class="btn btn-outline-secondary icon-button" data-bs-toggle="modal" data-bs-target="#actualizarModal"><i class="bi bi-pencil-square" aria-hidden="true"></i><span>Actualizar</span></button>
+      <button type="button" class="btn btn-success icon-button" data-bs-toggle="modal" data-bs-target="#crearModal"><i class="bi bi-plus-lg" aria-hidden="true"></i><span>Nuevo cliente</span></button>
+    </div>
+  </div>
+  <div class="data-card">
+    <div class="data-card-header"><div><h2>Clientes registrados</h2><span>Consulta en tiempo real</span></div><button type="button" class="btn btn-sm btn-outline-secondary icon-button" onclick="createTableFromJSON()"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Actualizar listado</span></button></div>
+    <div class="data-table-wrap" id="tablaClientes" onload="createTableFromJSON()"></div>
+    <div class="empty-state">Sin resultados todavía</div>
+  </div>
 </div>
 
 <div class="modal" id="crearModal">
@@ -190,6 +259,7 @@
         <form method="POST" role="form" action="#">
             <input type="hidden" name="_method" value="post" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+          <div class="form-section-title">Identificación y contacto</div>
             <div class="mb-3 mt-3">
                 <label for="rutForm" class="form-label">Rut:</label>
                 <input type="text" class="form-control" id="rutForm" placeholder="Inserte Rut sin dígito verificador" name="rut">
@@ -226,6 +296,7 @@
                 <label for="comunaForm" class="form-label">Comuna:</label>
                 <input type="" class="form-control" id="comunaForm" placeholder="Inserte comuna" name="comuna">
             </div>
+            <div class="form-section-title">Condiciones comerciales</div>
             <div class="mb-3 mt-3">
                 <label for="condicionesVentaForm" class="form-label">Condiciones de venta:</label>
                 <input type="text" class="form-control" id="condicionesVentaForm" placeholder="Inserte condiciones de venta" name="condicionesVenta">
@@ -278,6 +349,7 @@
         <form method="POST" role="form" action="#">
             <input type="hidden" name="_method" value="put" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+          <div class="form-section-title">Identificación y contacto</div>
             <div class="mb-3 mt-3">
                 <label for="IDidClienteActualizar" class="form-label">id del Cliente a actualizar:</label>
                 <input type="text" class="form-control" id="IDidClienteActualizar" placeholder="Inserte id del cliente" name="idClienteActualizar">
@@ -318,6 +390,7 @@
                 <label for="IDcomunaActualizar" class="form-label">Comuna:</label>
                 <input type="" class="form-control" id="IDcomunaActualizar" placeholder="Inserte comuna" name="comunaActualizar">
             </div>
+            <div class="form-section-title">Condiciones comerciales</div>
             <div class="mb-3 mt-3">
                 <label for="IDcondicionesVentaActualizar" class="form-label">Condiciones de venta:</label>
                 <input type="text" class="form-control" id="IDcondicionesVentaActualizar" placeholder="Inserte condiciones de venta" name="condicionesVentaActualizar">
