@@ -275,6 +275,22 @@ body:not(:has(.app-shell)) {
 .data-card-header h2 { margin: 0; font-size: .96rem; font-weight: 800; }
 .data-card-header span { color: var(--muted); font-size: .73rem; }
 .data-table-wrap { overflow-x: auto; }
+.data-table-wrap--scroll {
+  max-height: 520px;
+  overflow-y: auto;
+}
+.data-table-wrap--scroll table {
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.data-table-wrap--scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fafcfb;
+}
 .data-table,
 .data-table-wrap table { width: 100%; min-width: 1000px; margin: 0; color: #526059; font-size: .78rem; }
 .data-table th { padding: 14px 18px !important; color: #89958f; background: #fafcfb; border: 0 !important; border-bottom: 1px solid var(--line) !important; font-size: .67rem; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
@@ -287,6 +303,26 @@ body:not(:has(.app-shell)) {
 .data-table-wrap table tbody tr:hover { background: #fbfdf9; }
 .empty-state { padding: 42px 24px; color: var(--muted); text-align: center; }
 #tablaClientes:has(table) + .empty-state { display: none; }
+
+@media print {
+  body { background: #fff; }
+  .shared-sidebar,
+  .shared-topbar,
+  .data-card.mb-4,
+  .btn,
+  .no-print {
+    display: none !important;
+  }
+  .container-fluid {
+    width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  .container-fluid::before { display: none !important; }
+}
 
 .form-section-title {
   margin: 22px 0 12px;
