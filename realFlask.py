@@ -89,6 +89,9 @@ def obtener_url_logotipo():
 
 @app.route('/pedidos.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def pedidos():
+    clientes_response = supabase.table("clientes").select("id_cliente, nombre").execute()
+    vendedores_response = supabase.table("vendedores").select("id_vendedor, nombre").execute()
+    productos_response = supabase.table("producto_variantes").select("id_variante, descripcion").execute()
     if request.method == 'POST':
         metodo = request.form['_method']
         if (metodo == "post"):
@@ -156,13 +159,58 @@ def pedidos():
             else:
                 flash("Error borrando pedido", "error")
                 return redirect(url_for('pedidos'))
-        if (metodo == "buscarID"):
-            texto = request.form["idBuscar"]
-            response = supabase.rpc('buscarpedidoid', { 'textobusqueda': texto }).execute()
+        if (metodo == "buscarFechaPedido"):
+            texto = request.form["fechaPedidoBuscar"]
+            response = (supabase.table("pedidos").select("*").eq("fecha_pedido", texto).execute())
+            #response = supabase.rpc('buscarpedidoporfecha', { 'fechabusqueda': texto }).execute()
             if response.data:
-                return render_template('pedidos.html', datos = response.data)
+                return render_template('pedidos.html', datos = response.data,clientes=clientes_response.data,
+                            vendedores=vendedores_response.data,
+                            productos=productos_response.data)
             else:
-                return "No se ha encontrado ningún pedido con la id buscada"                
+                return "No se ha encontrado ningún pedido con la fecha buscada"
+        if (metodo == "buscarFechaEntrega"):
+                    texto = request.form["fechaEntregaBuscar"]
+                    response = (supabase.table("pedidos").select("*").eq("fecha_entrega", texto).execute())
+                    #response = supabase.rpc('buscarpedidoporfechaentrega', { 'fechabusqueda': texto }).execute()
+                    if response.data:
+                        return render_template('pedidos.html', datos = response.data,clientes=clientes_response.data,
+                                    vendedores=vendedores_response.data,
+                                    productos=productos_response.data)
+                    else:
+                        return "No se ha encontrado ningún pedido con la fecha buscada"
+        if (metodo == "buscarProductos"):
+            texto = request.form["ProductoBuscarn"]
+            #aux = supabase.table("detalle_pedidos").select("id_pedido").eq("id_variante", texto)
+            #aux3 = supabase.table("pedidos").select("*").eq("id_pedido", aux)
+            response = (supabase.table("pedidos").select("*, detalle_pedidos!inner(id_variante)").eq("detalle_pedidos.id_variante", texto).execute())
+            #response = supabase.rpc('buscarpedidosporproducto', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('pedidos.html', datos = response.data,clientes=clientes_response.data,
+                            vendedores=vendedores_response.data,
+                            productos=productos_response.data)
+            else:
+                return "No se ha encontrado ningún pedido con el producto buscado"
+        if (metodo == "buscarClientes"):
+            texto = request.form["ClienteBuscarn"]
+            response = (supabase.table("pedidos").select("*").eq("cliente_asociado", texto).execute())
+            #response = supabase.rpc('buscarpedidoporcliente', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('pedidos.html', datos = response.data,clientes=clientes_response.data,
+                            vendedores=vendedores_response.data,
+                            productos=productos_response.data)
+            else:
+                return "No se ha encontrado ningún pedido con el cliente buscado"
+        if (metodo == "buscarVendedores"):
+            texto = request.form["VendedorBuscarn"]
+            response = (supabase.table("pedidos").select("*").eq("vendedor_asociado", texto).execute())
+            #response = supabase.rpc('buscarpedidoporvendedor', { 'textobusqueda': texto }).execute()
+            if response.data:
+                return render_template('pedidos.html', datos = response.data,clientes=clientes_response.data,
+                            vendedores=vendedores_response.data,
+                            productos=productos_response.data)
+            else:
+                return "No se ha encontrado ningún pedido con el vendedor buscado"           
     else:
         response =(
             supabase.table("pedidos").select("*").execute()
@@ -870,7 +918,7 @@ def cortes():
             if response.data:
                 return render_template('cortes.html', datos = response.data)
             else:
-                return "No se ha encontrado ningún corte con la id buscada" 
+                return "No se ha encontrado ningún corte con la ID buscada" 
     else:
         response =(
             supabase.table("cortes").select("*").execute()
@@ -881,6 +929,7 @@ def cortes():
 
 @app.route('/clientes.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def clientes():
+    zonaVenta_response = supabase.table("zona_venta").select("id_zona_venta, descripcion").execute()
     if request.method == 'POST':
         metodo = request.form['_method']
         if (metodo == "post"):
@@ -974,21 +1023,21 @@ def clientes():
             texto = request.form["idBuscar"]
             response = supabase.rpc('buscarclienteid', { 'textobusqueda': texto }).execute()
             if response.data:
-                return render_template('clientes.html', datos = response.data)
+                return render_template('clientes.html', datos = response.data, zonasVenta = zonaVenta_response.data)
             else:
                 return "No se ha encontrado ningún cliente con la id buscada"
         if (metodo == "buscarNombre"):
             texto = request.form["nombreBuscar"]
             response = supabase.rpc('buscarclientenombre', { 'textobusqueda': texto }).execute()
             if response.data:
-                return render_template('clientes.html', datos = response.data)
+                return render_template('clientes.html', datos = response.data, zonasVenta = zonaVenta_response.data)
             else:
                 return "No se ha encontrado ningún cliente con el nombre buscado"
         if (metodo == "buscarAbreviacion"):
             texto = request.form["abreviacionBuscar"]
             response = supabase.rpc('buscarclienteabreviacion', { 'textobusqueda': texto }).execute()
             if response.data:
-                return render_template('clientes.html', datos = response.data)
+                return render_template('clientes.html', datos = response.data, zonasVenta = zonaVenta_response.data)
             else:
                 return "No se ha encontrado ningún cliente con la abreviacion buscada" 
     else:
@@ -996,7 +1045,7 @@ def clientes():
             supabase.table("clientes").select("*").execute()
         )
             
-        return render_template('clientes.html', datos = response.data)
+        return render_template('clientes.html', datos = response.data, zonasVenta = zonaVenta_response.data)
 
 @app.route('/colores.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def colores():
@@ -1059,7 +1108,7 @@ def colores():
             else:
                 return "No se ha encontrado ningún color con la descrpición buscada"
         if (metodo == "buscarCodigo"):
-            texto = request.form["descripcionBuscar"]
+            texto = request.form["codigoBuscar"]
             response = supabase.rpc('buscarcolorcodigo', { 'textobusqueda': texto }).execute()
             if response.data:
                 return render_template('colores.html', datos = response.data)
@@ -1477,13 +1526,13 @@ def productos():
                 return render_template('productos.html', datos = response.data)
             else:
                 return "No se ha encontrado ningún producto con la id buscada"
-        if (metodo == "buscarNombre"):
-            texto = request.form["nombreBuscar"]
-            response = supabase.rpc('buscarproductonombre', { 'textobusqueda': texto }).execute()
+        if (metodo == "buscarDescripcion"):
+            texto = request.form["descripcionBuscar"]
+            response = supabase.rpc('buscarproductodescripcion', { 'textobusqueda': texto }).execute()
             if response.data:
                 return render_template('productos.html', datos = response.data)
             else:
-                return "No se ha encontrado ningún producto con el nombre buscado"
+                return "No se ha encontrado ningún producto con la descripción buscada"
         if (metodo == "buscarAbreviacion"):
             texto = request.form["abreviacionBuscar"]
             response = supabase.rpc('buscarproductoabreviacion', { 'textobusqueda': texto }).execute()

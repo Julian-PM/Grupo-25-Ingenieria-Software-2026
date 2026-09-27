@@ -219,7 +219,7 @@
         } 
 </script>
 
-<body>
+<body onload="createTableFromJSON()">
   {% include '_flash_toast.html' %}
 <input type="hidden"  id="my_variable" value='{{ datos | tojson }}'>
 
@@ -237,9 +237,24 @@
     </div>
   </div>
   <div class="data-card">
-    <div class="data-card-header"><div><h2>Clientes registrados</h2><span>Consulta en tiempo real</span></div><button type="button" class="btn btn-sm btn-outline-secondary icon-button" onclick="createTableFromJSON()"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Actualizar listado</span></button></div>
+    <div class="data-card-header">
+      <div>
+        <h2>Clientes registrados</h2>
+        <span>Consulta en tiempo real</span>
+      </div>
+      <div class="heading-actions">
+        <button type="button" class="btn btn-sm btn-outline-secondary icon-button" data-bs-toggle="modal" data-bs-target="#buscarIDModal">
+          <i class="bi bi-search" aria-hidden="true"></i><span>ID</span></button>
+        <button type="button" class="btn btn-sm btn-outline-secondary icon-button" data-bs-toggle="modal" data-bs-target="#buscarNombreModal">
+          <i class="bi bi-person-lines-fill" aria-hidden="true"></i><span>Nombre</span></button>
+        <button type="button" class="btn btn-sm btn-outline-secondary icon-button" data-bs-toggle="modal" data-bs-target="#buscarAbreviacionModal">
+          <i class="bi bi-tag" aria-hidden="true"></i><span>Abreviación</span></button>
+        <button type="button" class="btn btn-sm btn-outline-secondary icon-button" onclick="createTableFromJSON()">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Actualizar listado</span></button>
+      </div>
+    </div>
     <div class="data-table-wrap" id="tablaClientes" onload="createTableFromJSON()"></div>
-    <div class="empty-state">Sin resultados todavía</div>
+    {% if not datos %}<div class="empty-state">Sin resultados todavía</div>{% endif %}
   </div>
 </div>
 
@@ -319,8 +334,14 @@
                 <input type="text" class="form-control" id="observacionesForm" placeholder="Inserte observaciones" name="observaciones">
             </div>
             <div class="mb-3 mt-3">
-                <label for="idZonaVentaForm" class="form-label">id Zona de venta:</label>
-                <input type="number" class="form-control" id="idZonaVentaForm" placeholder="Inserte id de la zona de venta" name="idZonaVenta">
+                <label for="idZonaVentaForm" class="form-label">Zona de venta asociada:</label>
+                <select class="form-select" id="idZonaVentaForm" name="IDZonaVentaCrear" required>
+                  <option value="" selected disabled>Seleccione una zona de venta</option>
+                  {% for zona in zonasVenta %}
+                  <option value="{{ zona.id_zona_venta }}">{{ zona.descripcion }}</option>
+                  {% endfor %}
+                </select>
+                <!--<input type="number" class="form-control" id="idZonaVentaForm" placeholder="Inserte id de la zona de venta" name="idZonaVenta"> -->
             </div>
             <button type="submit" class="btn btn-primary">Crear</button>
         </form>
@@ -413,8 +434,14 @@
                 <input type="text" class="form-control" id="IDobservacionesActualizar" placeholder="Inserte observaciones" name="observacionesActualizar">
             </div>
             <div class="mb-3 mt-3">
-                <label for="IDidZonaVentaActualizar" class="form-label">id Zona de venta:</label>
-                <input type="number" class="form-control" id="IDidZonaVentaActualizar" placeholder="Inserte id de la zona de venta" name="idZonaVentaActualizar">
+                <label for="IDidZonaVentaActualizar" class="form-label">Zona de venta asociada:</label>
+                <select class="form-select" id="IDidZonaVentaActualizar" name="IDZonaVentaActualizar" required>
+                  <option value="" selected disabled>Seleccione una zona de venta</option>
+                  {% for zona in zonasVenta %}
+                  <option value="{{ zona.id_zona_venta }}">{{ zona.descripcion }}</option>
+                  {% endfor %}
+                </select>
+                <!--<input type="number" class="form-control" id="IDidZonaVentaActualizar" placeholder="Inserte id de la zona de venta" name="idZonaVentaActualizar"> -->
             </div>
             <button type="submit" class="btn btn-primary">Actualizar</button>
         </form>
@@ -449,6 +476,108 @@
                 <input type="text" class="form-control" id="idClienteForm" placeholder="Inserte id del cliente" name="idClienteBorrar">
             </div>
             <button type="submit" class="btn btn-primary">Borrar</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="buscarIDModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Buscar Clientes</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
+         <!-- Action es a dónde los manda, y # los manda a la misma página-->
+        <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="buscarID" />
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+            <div class="mb-3 mt-3">
+                <label for="idForm" class="form-label">Por ID:</label>
+                <input type="text" class="form-control" id="idBuscar" placeholder="Inserte ID a buscar" name="idBuscar">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="buscarNombreModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Buscar Clientes</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
+         <!-- Action es a dónde los manda, y # los manda a la misma página-->
+        <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="buscarNombre" />
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+            <div class="mb-3 mt-3">
+                <label for="nombreForm" class="form-label">Por nombre:</label>
+                <input type="text" class="form-control" id="nombreBuscar" placeholder="Inserte nombre a buscar" name="nombreBuscar">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="buscarAbreviacionModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Buscar Clientes</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- form tiene que tener method POST y role form para que los datos se envíen.-->
+         <!-- Action es a dónde los manda, y # los manda a la misma página-->
+        <form method="POST" role="form" action="#">
+            <input type="hidden" name="_method" value="buscarAbreviacion" />
+            <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
+            <div class="mb-3 mt-3">
+                <label for="abreviacionForm" class="form-label">Por abreviación:</label>
+                <input type="text" class="form-control" id="abreviacionBuscar" placeholder="Inserte abreviacion a buscar" name="abreviacionBuscar">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
       </div>
 
