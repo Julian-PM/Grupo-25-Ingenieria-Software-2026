@@ -855,11 +855,14 @@ def cortes():
                 return "Error actualizando corte", 500
         if (metodo == "delete"):
             idABorrar = request.form['idCorteBorrar']
-            response = (
-                supabase.table("cortes").delete()
-                .eq("id_corte", idABorrar)
-                .execute()
-            )
+            try:
+                response = (
+                    supabase.table("cortes").delete()
+                    .eq("id_corte", idABorrar)
+                    .execute()
+                )
+            except APIError:
+                return "No se puede borrar: esta guía de cortes ya fue ingresada a bodega", 400
             if response.data:
                 return "Corte borrado exitosamente"
             else:
@@ -1685,66 +1688,17 @@ def ingresoBodega():
         return redirect(url_for('ingresoBodega'))
 
     try:
-        corte_response = (
-            supabase.table("cortes").select("*")
-            .eq("id_corte", codigo_corte).execute()
-        )
-        if not corte_response.data:
-            flash("No se encontró ninguna guía de cortes con ese código", "error")
-            return redirect(url_for('ingresoBodega'))
-
-        corte = corte_response.data[0]
-        id_producto = int(corte['producto_asociado'])
-        cantidad_corte = int(corte['cantidad'])
-        producto_response = (
-            supabase.table("productos").select("color, talla")
-            .eq("id_producto", id_producto).execute()
-        )
-        if not producto_response.data:
-            flash("No se encontró el producto asociado a la guía de cortes", "error")
-            return redirect(url_for('ingresoBodega'))
-
-        producto = producto_response.data[0]
-        id_color = int(producto['color'])
-        id_talla = int(producto['talla'])
-        inventario_response = (
-            supabase.table("inventario").select("*")
-            .eq("id_bodega", id_bodega)
-            .eq("id_producto", id_producto)
-            .eq("id_talla", id_talla)
-            .eq("id_color", id_color)
-            .execute()
-        )
-
-        if inventario_response.data:
-            inventario = inventario_response.data[0]
-            nueva_cantidad = int(inventario['cantidad']) + cantidad_corte
-            inventario_result = (
-                supabase.table("inventario")
-                .update({"cantidad": nueva_cantidad})
-                .eq("id_inventario", inventario['id_inventario'])
-                .select("id_inventario").execute()
-            )
-        else:
-            inventario_result = (
-                supabase.table("inventario").insert({
-                    "id_bodega": id_bodega,
-                    "id_producto": id_producto,
-                    "id_talla": id_talla,
-                    "id_color": id_color,
-                    "cantidad": cantidad_corte
-                }).execute()
-            )
-
-        if not inventario_result.data:
-            flash("No se pudo ingresar el producto a la bodega", "error")
-            return redirect(url_for('ingresoBodega'))
-    except (APIError, KeyError, TypeError, ValueError):
-        flash("No se pudo ingresar la guía de cortes a la bodega", "error")
+        response = supabase.rpc('ingresar_guia_corte', {
+            'p_id_corte': codigo_corte,
+            'p_id_bodega': id_bodega,
+            'p_usuario': 'Admin'
+        }).execute()
+    except APIError as error:
+        flash(error.message or "No se pudo ingresar la guía de cortes a la bodega", "error")
         return redirect(url_for('ingresoBodega'))
 
     flash(
-        f"Se ingresaron {cantidad_corte} unidades del producto {id_producto} en la bodega {id_bodega}",
+        f"Se ingresaron {response.data} unidades de la guía {codigo_corte} en la bodega {id_bodega}",
         "success"
     )
     return redirect(url_for('ingresoBodega'))
