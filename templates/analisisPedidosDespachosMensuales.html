@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Informe de Productos Terminados - Comercial D Nix</title>
+  <title>Análisis de pedidos y despachos mensuales - Comercial D Nix</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {% if datos %}<meta id="foo" data-name="{{datos.data}}">{% endif %}
@@ -13,6 +13,17 @@
 </head>
 <script>
     
+    function cargarTablas(){
+        var pedidosInicial = document.querySelector('#Pedidos').value
+        var despachosInicial = document.querySelector('#Despachos').value 
+        const pedidos = JSON.parse(pedidosInicial)
+        const despachos = JSON.parse(despachosInicial)
+        tablaPedidos = "pedidosTabla"
+        tablaDespachos = "despachosTabla"
+        createTableFromJSON(pedidos, tablaPedidos);
+        createTableFromJSON(despachos, tablaDespachos);
+    }
+
     function tablaProductosTerminados() {
         var test = document.querySelector('#my_variable').value 
         const data = JSON.parse(test)
@@ -49,12 +60,10 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaProductosTerminados').appendChild(table);
+        document.getElementById('pedidosDespachos').appendChild(table);
         } 
 
-    function createTableFromJSON() {
-        var test = document.querySelector('#my_variable').value 
-        const data = JSON.parse(test)
+    function createTableFromJSON(data, tabla) {
         if (!data || !data.length) return;
 
         const table = document.createElement('table');
@@ -88,7 +97,7 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaProductosTerminados').appendChild(table);
+        document.getElementById(tabla).appendChild(table);
         } 
 
     function tableTest(data) {
@@ -125,31 +134,33 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaProductosTerminados').appendChild(table);
+        document.getElementById('pedidosDespachos').appendChild(table);
         } 
 </script>
 
-
-<body {% if datos %}onload="createTableFromJSON()"{% endif %}></body>
-
-{% if datos %}<input type="hidden"  id="my_variable" value='{{ datos | tojson}}'>{% endif %}
+<body onload="cargarTablas()">
+    <input type="hidden"  id="Pedidos" value='{{ pedidos | tojson }}'>
+    <input type="hidden"  id="Despachos" value='{{ despachos | tojson }}'>
 <div>
-    <P>Informe de Productos Terminados - Test</P>
+    <P>Análisis de pedidos y despachos por tiempo - Test</P>
     <form method="POST" role="form" action="#">
         <div class="mb-3 mt-3">
             <!--<label for="DesdeForm" class="form-label">Desde:</label>-->
             <label for="desdeFechaID" class="form-label">Desde:</label>
-            <input type="date" class="form-control" id="desdeFechaID" placeholder="Productos terminados desde..." name="desdeFecha">
+            <input type="date" class="form-control" id="desdeFechaID" placeholder="Pedidos y despachos desde..." name="desdeFecha">
         </div>
         <div class="mb-3 mt-3">
             <!--<label for="HastaForm" class="form-label">Hasta:</label>-->
             <label for="hastaFechaID" class="form-label">Hasta:</label>
-            <input type="date" class="form-control" id="hastaFechaID" placeholder="Productos terminados hasta..." name="hastaFecha">
+            <input type="date" class="form-control" id="hastaFechaID" placeholder="Pedidos y despachos hasta..." name="hastaFecha">
         </div>
         <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
 </div>
-<div class="data-table-wrap" id="tablaProductosTerminados"></div>
+<P>Pedidos</P>
+<div class="data-table-wrap" id="pedidosTabla"></div>
+<P>Despachos</P>
+<div class="data-table-wrap" id="despachosTabla"></div>
 </body>
 
 

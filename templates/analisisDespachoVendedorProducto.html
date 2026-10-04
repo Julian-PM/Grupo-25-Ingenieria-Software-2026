@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Informe de Productos Terminados - Comercial D Nix</title>
+  <title>Análisis de Despachos por Vendedor y Producto - Comercial D Nix</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {% if datos %}<meta id="foo" data-name="{{datos.data}}">{% endif %}
@@ -88,7 +88,7 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaProductosTerminados').appendChild(table);
+        document.getElementById('despachosTabla').appendChild(table);
         } 
 
     function tableTest(data) {
@@ -134,22 +134,37 @@
 
 {% if datos %}<input type="hidden"  id="my_variable" value='{{ datos | tojson}}'>{% endif %}
 <div>
-    <P>Informe de Productos Terminados - Test</P>
+    <P>Análisis de Despachos por Vendedor y Producto - Test</P>
     <form method="POST" role="form" action="#">
         <div class="mb-3 mt-3">
             <!--<label for="DesdeForm" class="form-label">Desde:</label>-->
             <label for="desdeFechaID" class="form-label">Desde:</label>
-            <input type="date" class="form-control" id="desdeFechaID" placeholder="Productos terminados desde..." name="desdeFecha">
+            <input type="date" class="form-control" id="desdeFechaID" placeholder="Despachos desde..." name="desdeFecha">
         </div>
         <div class="mb-3 mt-3">
             <!--<label for="HastaForm" class="form-label">Hasta:</label>-->
             <label for="hastaFechaID" class="form-label">Hasta:</label>
-            <input type="date" class="form-control" id="hastaFechaID" placeholder="Productos terminados hasta..." name="hastaFecha">
+            <input type="date" class="form-control" id="hastaFechaID" placeholder="Despachos hasta..." name="hastaFecha">
         </div>
+        <label for="IDVendedorForm" class="form-label">Vendedor asociado:</label>
+            <select class="form-select" id="IDVendedorForm" name="IDVendedor" required>
+                <option value="" selected disabled>Seleccione un vendedor</option>
+                {% for vendedor in vendedores %}
+                    <option value="{{ vendedor.id_vendedor }}">{{ vendedor.nombre }}</option>
+                {% endfor %}
+            </select>
+        <label for="IDProductoForm" class="form-label">Producto:</label>
+            <select class="form-select" id="IDProductoForm" name="IDProducto" required>
+                <option value="" selected disabled>Seleccione un producto</option>
+                {% for producto in productos %}
+                    <option value="{{ producto.id_variante }}">{{ producto.descripcion }}</option>
+                {% endfor %}
+            </select>
         <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
 </div>
-<div class="data-table-wrap" id="tablaProductosTerminados"></div>
+<P>Despachos</P>
+<div class="data-table-wrap" id="despachosTabla"></div>
 </body>
 
 
