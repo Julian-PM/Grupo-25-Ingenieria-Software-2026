@@ -112,6 +112,14 @@
                 <label for="tallaForm" class="form-label">Talla:</label>
                 <input type="text" class="form-control" id="tallaForm" placeholder="Inserte talla" name="tallaCrear">
             </div>
+            <div class="mb-3">
+                <label for="nombreTallaForm" class="form-label">Nombre en etiqueta:</label>
+                <input type="text" class="form-control" id="nombreTallaForm" placeholder="Ej: S, M, L, 38" name="nombreCrear">
+            </div>
+            <div class="mb-3">
+                <label for="codigoEanTallaForm" class="form-label">Código EAN de la talla (solo números):</label>
+                <input type="text" class="form-control" id="codigoEanTallaForm" placeholder="Ej: 010" name="codigoEanCrear" inputmode="numeric" pattern="[0-9]*">
+            </div>
             <button type="submit" class="btn btn-primary icon-button"><i class="bi bi-check2" aria-hidden="true"></i><span>Crear</span></button>
         </form>
       </div>
@@ -147,6 +155,14 @@
             <div class="mb-3">
                 <label for="tallaFormActualizar" class="form-label">Talla:</label>
                 <input type="text" class="form-control" id="tallaFormActualizar" placeholder="Inserte talla" name="tallaActualizar">
+            </div>
+            <div class="mb-3">
+                <label for="nombreTallaFormActualizar" class="form-label">Nombre en etiqueta:</label>
+                <input type="text" class="form-control" id="nombreTallaFormActualizar" placeholder="Ej: S, M, L, 38" name="nombreActualizar">
+            </div>
+            <div class="mb-3">
+                <label for="codigoEanTallaFormActualizar" class="form-label">Código EAN de la talla (solo números):</label>
+                <input type="text" class="form-control" id="codigoEanTallaFormActualizar" placeholder="Ej: 010" name="codigoEanActualizar" inputmode="numeric" pattern="[0-9]*">
             </div>
             <button type="submit" class="btn btn-primary icon-button"><i class="bi bi-check2" aria-hidden="true"></i><span>Actualizar</span></button>
         </form>

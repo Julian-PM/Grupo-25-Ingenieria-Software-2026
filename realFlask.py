@@ -10,6 +10,7 @@ from flask import render_template
 from flask import redirect
 from flask import url_for
 from flask import send_file
+from markupsafe import Markup
 from supabase import create_client, Client
 from dotenv import load_dotenv
 from postgrest.exceptions import APIError
@@ -18,6 +19,8 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
+
+import ean13
 
 load_dotenv()
 
@@ -55,6 +58,23 @@ SYSTEM_PARAMETER_DEFAULTS = {
 }
 ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 MAX_LOGO_SIZE = 2 * 1024 * 1024
+
+
+# El rollo de la impresora SATO trae 3 etiquetas por fila.
+ETIQUETAS_POR_FILA = 3
+
+
+@app.errorhandler(APIError)
+def error_base_datos(error):
+    # Errores de Supabase que ninguna ruta capturó (por ejemplo, un código EAN
+    # más largo de lo permitido): se muestra el mensaje en vez de un error 500.
+    return f"Error de base de datos: {error.message}", 400
+
+
+def _texto_o_nulo(valor):
+    # Los campos opcionales vacíos se guardan como NULL (los códigos EAN tienen check de solo dígitos).
+    valor = (valor or '').strip()
+    return valor or None
 
 
 def obtener_parametros_sistema():
@@ -1107,6 +1127,7 @@ def colores():
         if (metodo == "post"):
             codigo = request.form['codigoCrear']
             descripcion = request.form['descripcionCrear']
+            codigoEan = _texto_o_nulo(request.form.get('codigoEanCrear'))
 
             #Hasta aquí toma los datos que se enviaron desde cliente.html cuando
             #se pulsó el botón con submit.
@@ -1116,6 +1137,7 @@ def colores():
 
                 #Este es el comando para insertar los datos a la base de datos.
                 supabase.table("colores").insert({"codigo_color": codigo, "descripcion": descripcion,
+                        "codigo_ean": codigoEan
                         }).execute()
             )
             if response.data:
@@ -1125,10 +1147,12 @@ def colores():
         if (metodo == "put"):
             idColor = request.form['idColorActualizar']
             codigo = request.form['codigoActualizar']
-            descripcion = request.form['descripcionActualizar'] 
+            descripcion = request.form['descripcionActualizar']
+            codigoEan = _texto_o_nulo(request.form.get('codigoEanActualizar'))
             response = (
-                
+
                 supabase.table("colores").update({"codigo_color": codigo, "descripcion": descripcion,
+                        "codigo_ean": codigoEan
                         }).eq("id_color", idColor).select("id_color").execute()
             )
             if response.data:
@@ -1441,6 +1465,8 @@ def tallas():
         metodo = request.form['_method']
         if (metodo == "post"):
             talla = request.form['tallaCrear']
+            nombre = _texto_o_nulo(request.form.get('nombreCrear'))
+            codigoEan = _texto_o_nulo(request.form.get('codigoEanCrear'))
 
             #Hasta aquí toma los datos que se enviaron desde cliente.html cuando
             #se pulsó el botón con submit.
@@ -1449,7 +1475,7 @@ def tallas():
             response = (
 
                 #Este es el comando para insertar los datos a la base de datos.
-                supabase.table("tallas").insert({"talla": talla
+                supabase.table("tallas").insert({"talla": talla, "nombre": nombre, "codigo_ean": codigoEan
                         }).execute()
             )
             if response.data:
@@ -1458,10 +1484,12 @@ def tallas():
                 return "Error creando talla", 500
         if (metodo == "put"):
             idTalla = request.form['IdTallaActualizar']
-            talla = request.form['tallaActualizar'] 
+            talla = request.form['tallaActualizar']
+            nombre = _texto_o_nulo(request.form.get('nombreActualizar'))
+            codigoEan = _texto_o_nulo(request.form.get('codigoEanActualizar'))
             response = (
-                
-                supabase.table("tallas").update({"talla": talla
+
+                supabase.table("tallas").update({"talla": talla, "nombre": nombre, "codigo_ean": codigoEan
                         }).eq("id_talla", idTalla).select("id_talla").execute()
             )
             if response.data:
@@ -1509,12 +1537,15 @@ def productos():
             abreviacion = request.form['abreviacionCrear']
             idColor = request.form['idColorCrear']
             precio = request.form['precioCrear']
-            idTalla = request.form['idTallaCrear'] 
+            idTalla = request.form['idTallaCrear']
+            codigo = _texto_o_nulo(request.form.get('codigoCrear'))
+            codigoEan = _texto_o_nulo(request.form.get('codigoEanCrear'))
 
             try:
                 response = (
                     supabase.table("productos").insert({"abreviacion": abreviacion, "descripcion": descripcion,
-                            "color": idColor, "precio": precio, "talla": idTalla
+                            "color": idColor, "precio": precio, "talla": idTalla,
+                            "codigo": codigo, "codigo_ean": codigoEan
                             }).execute()
                 )
             except APIError as error:
@@ -1522,6 +1553,10 @@ def productos():
                     mensaje = "El color o talla seleccionado no existe"
                 elif error.code == "22P02":
                     mensaje = "El color o talla seleccionado no es válido"
+                elif error.code == "23505":
+                    mensaje = "Ya existe un producto con ese código de artículo"
+                elif error.code == "23514":
+                    mensaje = "El código EAN del producto solo puede tener números"
                 else:
                     mensaje = "No se pudo crear el producto"
                 flash(mensaje, "error")
@@ -1538,17 +1573,26 @@ def productos():
             abreviacion = request.form['abreviacionActualizar']
             idColor = request.form['idColorActualizar']
             precio = request.form['precioActualizar']
-            idTalla = request.form['idTallaActualizar'] 
+            idTalla = request.form['idTallaActualizar']
+            codigo = _texto_o_nulo(request.form.get('codigoActualizar'))
+            codigoEan = _texto_o_nulo(request.form.get('codigoEanActualizar'))
             try:
                 response = (
                     supabase.table("productos").update({"abreviacion": abreviacion, "descripcion": descripcion,
-                            "color": idColor, "precio": precio, "talla": idTalla}).eq("id_producto", idProducto).select("id_producto").execute()
+                            "color": idColor, "precio": precio, "talla": idTalla,
+                            "codigo": codigo, "codigo_ean": codigoEan}).eq("id_producto", idProducto).select("id_producto").execute()
                 )
             except APIError as error:
                 if error.code == "23503":
                     mensaje = "El color o talla seleccionado no existe"
                 elif error.code == "22P02":
                     mensaje = "El color o talla seleccionado no es válido"
+                elif error.code == "23505":
+                    mensaje = "Ya existe un producto con ese código de artículo"
+                elif error.code == "23514":
+                    mensaje = "El código EAN del producto solo puede tener números"
+                elif error.code == "P0001":
+                    mensaje = error.message
                 else:
                     mensaje = "No se pudo actualizar el producto"
                 flash(mensaje, "error")
@@ -1607,64 +1651,132 @@ def productos():
             tallas=tallas_response.data
         )
 
-@app.route('/codigosEAN.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
+@app.route('/codigosEAN.html', methods=['GET', 'POST'])
 def codigosEAN():
-    productos_response = supabase.table("producto_variantes").select("id_variante, descripcion").execute()
+    # RF-015/016: el EAN de cada variante (producto + color + talla) lo arma la
+    # base de datos con los códigos de cada maestro (fn_generar_ean). Aquí se
+    # consulta, y se puede fijar un código manual o volver al automático.
     if request.method == 'POST':
-        metodo = request.form['_method']
-        if (metodo == "post"):
-            producto = request.form['idProductoCrear']
-            tempCodigo = request.form['codigoCrear']
+        metodo = request.form.get('_method')
+        idVariante = request.form.get('idVariante', '')
+        try:
+            if metodo == "manual":
+                codigo = (request.form.get('codigoManual') or '').strip()
+                if len(codigo) != 13 or not codigo.isdigit():
+                    flash("El código manual debe tener 13 dígitos", "error")
+                    return redirect(url_for('codigosEAN'))
+                supabase.table("producto_variantes").update({"ean_manual": True, "codigo_ean": codigo}) \
+                    .eq("id_variante", idVariante).execute()
+                flash("Código manual guardado", "success")
+            elif metodo == "automatico":
+                supabase.table("producto_variantes").update({"ean_manual": False}) \
+                    .eq("id_variante", idVariante).execute()
+                flash("La variante vuelve a usar el código automático", "success")
+        except APIError as error:
+            if error.code == "23505":
+                flash("Ese código EAN ya está asignado a otra variante", "error")
+            else:
+                flash(error.message or "No se pudo actualizar el código EAN", "error")
+        return redirect(url_for('codigosEAN'))
 
-            response = (
+    texto = request.args.get('q', '').strip()
+    query = supabase.table("v_codigos_ean").select("*").order("codigo_articulo").order("color").order("id_talla")
+    if texto:
+        query = query.ilike("descripcion", f"%{texto}%")
+    datos = query.execute().data or []
+    return render_template('codigosEAN.html', datos=datos, busqueda=texto)
 
-                #Este es el comando para insertar los datos a la base de datos.
-                supabase.table("codigos_EAN").insert({"producto_asociado": producto,
-                        "temp_codigo": tempCodigo
-                        }).execute()
-            )
-            if response.data:
-                return "Código EAN creado exitosamente"
-            else:
-                return "Error creando Código EAN", 500
-        if (metodo == "put"):
-            idCodigo = request.form['IdCodigoActualizar']
-            producto = request.form['idProductoActualizar']
-            tempCodigo = request.form['codigoActualizar']
-            response = (
-                
-                supabase.table("codigos_EAN").update({"producto_asociado": producto,
-                        "temp_codigo": tempCodigo
-                        }).eq("id_codigo_EAN", idCodigo).select("id_codigo_EAN").execute()
-            )
-            if response.data:
-                return "Código EAN actualizado exitosamente"
-            else:
-                return "Error actualizando Código EAN", 500
-        if (metodo == "delete"):
-            idABorrar = request.form['idCodigoBorrar']
-            response = (
-                supabase.table("codigos_EAN").delete()
-                .eq("id_codigo_EAN", idABorrar)
-                .execute()
-            )
-            if response.data:
-                return "Código EAN borrado exitosamente"
-            else:
-                return "Error borrando Código EAN", 500
-        if (metodo == "buscarID"):
-            texto = request.form["idBuscar"]
-            response = supabase.rpc('buscarcodigoeanid', { 'textobusqueda': texto }).execute()
-            if response.data:
-                return render_template('codigosEAN.html', datos = response.data, productos = productos_response)
-            else:
-                return "No se ha encontrado ningún código EAN con la id buscada"
-    else:
-        response =(
-            supabase.table("codigos_EAN").select("*").execute()
-        )
-            
-        return render_template('codigosEAN.html', datos = response.data, productos = productos_response)
+
+MAX_ETIQUETAS_POR_EMISION = 2000
+
+
+@app.route('/emisionEAN.html', methods=['GET', 'POST'])
+def emisionEAN():
+    # RF-017: se elige producto y color, se indica cuántas etiquetas por talla
+    # y se genera la hoja para imprimir en la impresora de etiquetas.
+    if request.method == 'GET':
+        productos = supabase.table("productos").select("id_producto, codigo, descripcion, codigo_ean") \
+            .order("codigo").execute().data or []
+        colores = supabase.table("colores").select("id_color, descripcion, codigo_ean") \
+            .order("descripcion").execute().data or []
+        tallas = supabase.table("tallas").select("id_talla, talla, nombre, codigo_ean") \
+            .order("talla").execute().data or []
+        return render_template('emisionEAN.html', productos=productos, colores=colores, tallas=tallas)
+
+    try:
+        idProducto = int(request.form.get('idProducto', ''))
+        idColor = int(request.form.get('idColor', ''))
+    except ValueError:
+        flash("Seleccione un producto y un color", "error")
+        return redirect(url_for('emisionEAN'))
+
+    cantidades = {}
+    for clave, valor in request.form.items():
+        if not clave.startswith('cantidad_') or not valor.strip():
+            continue
+        try:
+            idTalla = int(clave.removeprefix('cantidad_'))
+            cantidad = int(valor)
+        except ValueError:
+            flash("Las cantidades deben ser números enteros", "error")
+            return redirect(url_for('emisionEAN'))
+        if cantidad < 0:
+            flash("Las cantidades no pueden ser negativas", "error")
+            return redirect(url_for('emisionEAN'))
+        if cantidad > 0:
+            cantidades[idTalla] = cantidad
+
+    if not cantidades:
+        flash("Ingrese la cantidad de etiquetas de al menos una talla", "error")
+        return redirect(url_for('emisionEAN'))
+    if sum(cantidades.values()) > MAX_ETIQUETAS_POR_EMISION:
+        flash(f"No se pueden emitir más de {MAX_ETIQUETAS_POR_EMISION} etiquetas a la vez", "error")
+        return redirect(url_for('emisionEAN'))
+
+    producto = supabase.table("productos").select("id_producto, codigo, descripcion") \
+        .eq("id_producto", idProducto).execute().data
+    color = supabase.table("colores").select("descripcion").eq("id_color", idColor).execute().data
+    tallas = supabase.table("tallas").select("id_talla, talla, nombre") \
+        .in_("id_talla", list(cantidades)).order("talla").execute().data or []
+    if not producto or not color or len(tallas) != len(cantidades):
+        flash("El producto, color o talla seleccionado no existe", "error")
+        return redirect(url_for('emisionEAN'))
+    producto = producto[0]
+
+    etiquetas = []
+    sin_codigo = []
+    for talla in tallas:
+        nombreTalla = talla.get('nombre') or str(talla['talla'])
+        try:
+            variante = supabase.rpc('obtener_variante', {
+                'p_id_producto': idProducto,
+                'p_id_color': idColor,
+                'p_id_talla': talla['id_talla']
+            }).execute().data
+        except APIError as error:
+            flash(error.message or "No se pudo generar el código EAN", "error")
+            return redirect(url_for('emisionEAN'))
+        codigo = variante[0]['codigo_ean'] if variante else None
+        if not codigo:
+            sin_codigo.append(nombreTalla)
+            continue
+        etiqueta = {
+            'articulo': producto.get('codigo') or str(producto['id_producto']),
+            'descripcion': producto['descripcion'],
+            'color': color[0]['descripcion'],
+            'talla': nombreTalla,
+            'ean': codigo,
+            'barras': Markup(ean13.svg(codigo)),
+        }
+        etiquetas.extend([etiqueta] * cantidades[talla['id_talla']])
+
+    if sin_codigo:
+        flash("Falta el código EAN del producto, del color o de la talla para: "
+              + ", ".join(sin_codigo) + ". Complételo en los datos maestros.", "error")
+        return redirect(url_for('emisionEAN'))
+
+    filas = [etiquetas[i:i + ETIQUETAS_POR_FILA] for i in range(0, len(etiquetas), ETIQUETAS_POR_FILA)]
+    return render_template('etiquetasEAN.html', filas=filas, total=len(etiquetas))
 
 
 @app.route('/archivosMaestros.html', methods=['GET'])
