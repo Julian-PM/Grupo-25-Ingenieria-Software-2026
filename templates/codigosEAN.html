@@ -97,7 +97,13 @@
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3">
                 <label for="idProductoForm" class="form-label">ID Producto asociado:</label>
-                <input type="text" class="form-control" id="idProductoForm" placeholder="Inserte id del producto" name="idProductoCrear">
+                <!--<input type="text" class="form-control" id="idProductoForm" placeholder="Inserte id del producto" name="idProductoCrear">-->
+                <select class="form-select" id="idProductoForm" name="IDProductoCrear" required>
+                  <option value="" selected disabled>Seleccione un producto</option>
+                  {% for producto in productos %}
+                  <option value="{{ producto.id_variante }}">{{ producto.descripcion }}</option>
+                  {% endfor %}
+                </select>
             </div>
             <div class="mb-3">
                 <label for="codigoForm" class="form-label">(Temporal) Código:</label>
@@ -133,12 +139,19 @@
             <input type="hidden" name="_method" value="put" />
             <!--Desde aquí se ponen los datos. Hay que cambiar estos por los de cada entidad.-->
             <div class="mb-3 mt-3">
+              <!--TODO: Ver si se puede cambiar esto a un botón al lado de cada fila, y sacar la id del que se seleccionó-->
                 <label for="IDidCodigoActualizar" class="form-label">Id del código a actualizar:</label>
                 <input type="text" class="form-control" id="IDidCodigoActualizar" placeholder="Inserte id del código" name="IdCodigoActualizar">
             </div>
             <div class="mb-3">
-                <label for="idProductoForm" class="form-label">ID Producto asociado:</label>
-                <input type="text" class="form-control" id="idProductoForm" placeholder="Inserte id del producto" name="idProductoActualizar">
+                <label for="idProductoForm" class="form-label">Producto asociado:</label>
+                <select class="form-select" id="idProductoForm" name="IDProductoActualizar" required>
+                  <option value="" selected disabled>Seleccione un producto</option>
+                  {% for producto in productos %}
+                  <option value="{{ producto.id_variante }}">{{ producto.descripcion }}</option>
+                  {% endfor %}
+                </select>
+                <!--<input type="text" class="form-control" id="idProductoForm" placeholder="Inserte id del producto" name="idProductoActualizar">-->
             </div>
             <div class="mb-3">
                 <label for="codigoForm" class="form-label">(Temporal) Código:</label>

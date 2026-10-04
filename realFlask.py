@@ -1,8 +1,9 @@
 import os
 import re
 import io
+import json
 from datetime import datetime, timezone
-from flask import Flask
+from flask import Flask, jsonify
 from flask import flash
 from flask import request
 from flask import render_template
@@ -776,6 +777,56 @@ def obtener_informe_cobranza(request_args):
 
     return sorted(rows, key=lambda item: (item.get('cliente') or '').lower())
 
+@app.route('/informeProductosDespachados.html', methods=['GET', 'POST'])
+def informeProductosDespachados():
+    if request.method == 'POST':
+        #Buscar los productos despachados entre tal y tal fecha
+        #Para ello necesitamos un campo o tabla con fechas de despacho
+        fechaDesde = request.form['desdeFecha']
+        fechaHasta = request.form['hastaFecha']
+        return 'placeholder'
+    else:
+        return render_template('informeProductosDespachados.html')
+
+@app.route('/informeProductosEnProceso.html', methods=['GET', 'POST'])
+def informeProductosEnProceso():
+    if request.method == 'POST':
+        #Buscar los productos presentes en corte pero no ingresados a bodega
+        return 'placeholder'
+    else:
+        return render_template('informeProductosEnProceso.html')
+
+@app.route('/informeProductosPendientesDespacho.html', methods=['GET', 'POST'])
+def informeProductosPendientesDespacho():
+    if request.method == 'POST':
+        #Buscar los productos que estén en bodega y falta despachar
+        return 'placeholder'
+    else:
+        return render_template('informeProductosPendientesDespacho.html')
+
+@app.route('/informeProductosTerminados.html', methods=['GET', 'POST'])
+def informeProductosTerminados():
+    if request.method == 'POST':
+        #TODO: cambiar referencias de productos a producto variante una vez arreglemos eso
+        #print("hola")
+        fechaDesde = request.form['desdeFecha']
+        fechaHasta = request.form['hastaFecha']
+        desdeST = datetime.strptime(fechaDesde, "%Y-%m-%d")
+        #print(desdeST)
+        desdeTZ = desdeST.replace(tzinfo=timezone.utc)
+        #print(desdeTZ)
+        hastaST = datetime.strptime(fechaHasta, "%Y-%m-%d")
+        hastaTZ = hastaST.replace(tzinfo=timezone.utc)
+        response = (
+            supabase.table('cortes').select('producto_asociado, cantidad, productos(descripcion, color(descripcion), talla(talla))')
+            .gte('fecha_ingreso', desdeTZ)
+            .lte('fecha_ingreso', hastaTZ)
+            .execute()
+        )
+
+        return render_template('informeProductosTerminados.html', datos = response.data)
+    else:
+        return render_template('informeProductosTerminados.html')
 
 @app.route('/informeCobranza.html', methods=['GET'])
 def informeCobranza():
@@ -928,7 +979,6 @@ def cortes():
         )
             
         return render_template('cortes.html', datos = response.data)
-
 
 @app.route('/clientes.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def clientes():
@@ -1559,6 +1609,7 @@ def productos():
 
 @app.route('/codigosEAN.html', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def codigosEAN():
+    productos_response = supabase.table("producto_variantes").select("id_variante, descripcion").execute()
     if request.method == 'POST':
         metodo = request.form['_method']
         if (metodo == "post"):
@@ -1605,7 +1656,7 @@ def codigosEAN():
             texto = request.form["idBuscar"]
             response = supabase.rpc('buscarcodigoeanid', { 'textobusqueda': texto }).execute()
             if response.data:
-                return render_template('codigosEAN.html', datos = response.data)
+                return render_template('codigosEAN.html', datos = response.data, productos = productos_response)
             else:
                 return "No se ha encontrado ningún código EAN con la id buscada"
     else:
@@ -1613,7 +1664,7 @@ def codigosEAN():
             supabase.table("codigos_EAN").select("*").execute()
         )
             
-        return render_template('codigosEAN.html', datos = response.data)
+        return render_template('codigosEAN.html', datos = response.data, productos = productos_response)
 
 
 @app.route('/archivosMaestros.html', methods=['GET'])
