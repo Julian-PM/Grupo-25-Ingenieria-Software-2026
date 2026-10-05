@@ -778,55 +778,85 @@ def obtener_informe_cobranza(request_args):
 def informeProductosDespachados():
     if request.method == 'POST':
         #Buscar los productos despachados entre tal y tal fecha
-        #Para ello necesitamos un campo o tabla con fechas de despacho
+        #Para ello necesitamos sacar los productos en los detalles de los pedidos asociados
+        #TODO: Como los despachos no necesariamente son de un pedido completo, una vez lo arreglemos
+        #en la base de datos, tenemos que cambiarlo aquí igual
         fechaDesde = request.form['desdeFecha']
         fechaHasta = request.form['hastaFecha']
-        desdeST = datetime.strptime(fechaDesde, "%Y-%m-%d")
-        desdeTZ = desdeST.replace(tzinfo=timezone.utc)
-        hastaST = datetime.strptime(fechaHasta, "%Y-%m-%d")
-        hastaTZ = hastaST.replace(tzinfo=timezone.utc)
-        response = (
-            supabase.table('')
-            .select('')
-            .execute
+        responseDespachos = (
+            supabase.table('despachos')
+            .select('id_despacho, pedidos!inner(id_pedido)')
+            .eq('estado', 'emitido')
+            .gte('fecha', fechaDesde)
+            .lte('fecha', fechaHasta)
+            .execute()
         )
-        return render_template('informeProductosDespachados.html', datos = response.data)
+        despachos = responseDespachos.data
+        pedidosRelevantes = []
+        for x in range(len(despachos)):
+            pedidosRelevantes.append(despachos[x]['pedidos']['id_pedido'])
+        print(pedidosRelevantes)
+        
+        responseDetallePedidos = (
+            supabase.table('detalle_pedidos')
+            .select('id_detalle_pedido, id_pedido, cantidad, producto_variantes!inner(id_variante)')
+            .in_('id_pedido', pedidosRelevantes)
+            .execute()
+        )
+
+        return render_template('informeProductosDespachados.html', datos = responseDespachos.data,
+                                detallePedidos = responseDetallePedidos.data)
     else:
         return render_template('informeProductosDespachados.html')
 
 @app.route('/informeProductosEnProceso.html', methods=['GET', 'POST'])
 def informeProductosEnProceso():
-    if request.method == 'POST':
+    if request.method == 'POST' or 'GET':
         #Buscar los productos presentes en corte pero no ingresados a bodega
+        #TODO: cambiar referencias a producto variantes una vez los consolidemos
+        #y luego poner los detalles de producto variantes, como talla y color
+        responseProductos = (
+            supabase.table('productos')
+            .select('id_producto, descripcion')
+            .execute()
+        )
         response = (
                     supabase.table('cortes')
-                    .select('*')
+                    .select('id_corte, producto_asociado, cantidad')
                     .eq('estado', 'pendiente')
                     .execute()
                 )
-        return render_template('informeProductosEnProceso.html', datos = response.data)
+        return render_template('informeProductosEnProceso.html', datos = response.data, productos = responseProductos.data)
     else:
         return render_template('informeProductosEnProceso.html')
 
 @app.route('/informeProductosPendientesDespacho.html', methods=['GET', 'POST'])
 def informeProductosPendientesDespacho():
-    if request.method == 'POST':
+    if request.method == 'POST' or 'GET':
         #Buscar los productos que estén en bodega y falta despachar
         responsePedidos = (
             supabase.table('pedidos')
-            .select("*, detalle_pedidos!inner(id_variante)")
+            .select("id_pedido, detalle_pedidos!inner(id_variante)")
             .eq('estado', 'pendiente')
             .execute()
         )
+        rp = responsePedidos.data
+        #print(rp)
+        #print(rp[0])
+        #print(rp[0]['detalle_pedidos'])
+        #print(rp[0]['detalle_pedidos'][0])
+        #print(rp[0]['detalle_pedidos'][0]['id_variante'])
         productosPendientes = []
-        #TODO: Sacar los productos, meterlos en un array, y poner
+        for x in range(len(rp)):
+                    for y in range(len(rp[x]['detalle_pedidos'])):
+                        productosPendientes.append(rp[x]['detalle_pedidos'][y]['id_variante'])
+        print(productosPendientes)
         responseInventario = (
             supabase.table('inventario')
             .select('*')
             .in_('id_producto', productosPendientes)
             .execute()
         )
-
 
         return render_template('informeProductosPendientesDespacho.html', datosPedidos = responsePedidos.data, datosInventario = responseInventario.data)
     else:
