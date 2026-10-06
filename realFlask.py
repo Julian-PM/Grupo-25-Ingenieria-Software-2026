@@ -832,20 +832,59 @@ def informeProductosEnProceso():
 
 @app.route('/informeProductosPendientesDespacho.html', methods=['GET', 'POST'])
 def informeProductosPendientesDespacho():
+    #Buscar los productos que estén en bodega y falta despachar
+    responseClientes = (
+                    supabase.table('clientes')
+                    .select("id_cliente, nombre")
+                    .execute()
+                    )
+    responseIDPedidos = (
+                    supabase.table('pedidos')
+                    .select("id_pedido")
+                    .execute()
+    )
+    responseVendedores = (
+                    supabase.table('vendedores')
+                    .select("id_vendedor, nombre")
+                    .execute()
+    )
     if request.method == 'POST' or 'GET':
-        #Buscar los productos que estén en bodega y falta despachar
-        responsePedidos = (
-            supabase.table('pedidos')
-            .select("id_pedido, detalle_pedidos!inner(id_variante)")
-            .eq('estado', 'pendiente')
-            .execute()
-        )
+        metodo = request.form['method_']
+        if metodo == 'get':
+            responsePedidos = (
+                supabase.table('pedidos')
+                .select("id_pedido, detalle_pedidos!inner(id_variante)")
+                .eq('estado', 'pendiente')
+                .execute()
+            )
+        if metodo == 'buscarPedidos':
+            pedidoABuscar = request.form['PedidoBuscarn']
+            responsePedidos = (
+                            supabase.table('pedidos')
+                            .select("id_pedido, detalle_pedidos!inner(id_variante)")
+                            .eq('estado', 'pendiente')
+                            .eq('id_pedido  ', pedidoABuscar)
+                            .execute()
+                        )
+        if metodo == 'buscarClientes':
+            clienteABuscar = request.form['clienteBuscar']
+            responsePedidos = (
+                            supabase.table('pedidos')
+                            .select("id_pedido, detalle_pedidos!inner(id_variante)")
+                            .eq('estado', 'pendiente')
+                            .eq('cliente_asociado', clienteABuscar)
+                            .execute()
+                        )
+        if metodo == 'buscarVendedores':
+            vendedorABuscar = request.form['vendedorBuscar']
+            responsePedidos = (
+                            supabase.table('pedidos')
+                            .select("id_pedido, detalle_pedidos!inner(id_variante)")
+                            .eq('estado', 'pendiente')
+                            .eq('vendedor_asociado', vendedorABuscar)
+                            .execute()
+                        )
         rp = responsePedidos.data
-        #print(rp)
-        #print(rp[0])
-        #print(rp[0]['detalle_pedidos'])
-        #print(rp[0]['detalle_pedidos'][0])
-        #print(rp[0]['detalle_pedidos'][0]['id_variante'])
         productosPendientes = []
         for x in range(len(rp)):
                     for y in range(len(rp[x]['detalle_pedidos'])):
@@ -854,11 +893,19 @@ def informeProductosPendientesDespacho():
         responseInventario = (
             supabase.table('inventario')
             .select('*')
-            .in_('id_producto', productosPendientes)
+            .in_('id_variante', productosPendientes)
             .execute()
         )
-
-        return render_template('informeProductosPendientesDespacho.html', datosPedidos = responsePedidos.data, datosInventario = responseInventario.data)
+        #TODO: Cambiar inventario una vez se consolide producto y producto_variante
+        responseProductos = (
+            supabase.table('producto_variantes')
+            .select('*')
+            .in_('id_variante', productosPendientes)
+            .execute()
+        )
+        return render_template('informeProductosPendientesDespacho.html', datosPedidos = responsePedidos.data,
+                                datosInventario = responseInventario.data, datosProductos = responseProductos.data,
+                                clientes = responseClientes.data, vendedores = responseVendedores.data, pedidos = responseIDPedidos.data)   
     else:
         return render_template('informeProductosPendientesDespacho.html')
 
@@ -978,13 +1025,28 @@ def analisisVentasDescuentos():
     if request.method == 'POST':
         #Factores relevantes serían los descuentos y porcentajes de comisión.
         #Hay que sacar el valor de los pedidos en bruto, y ver cuanto se pierde por descuentos
-        response = (
-            supabase.table('').select('')
-
+        fechaDesde = request.form['desdeFecha']
+        fechaHasta = request.form['hastaFecha']
+        responsePedidos = (
+            supabase.table('pedidos')
+            .select('id_pedido, fecha_pedido, fecha_entrega, estado, cliente_asociado, vendedor_asociado')
+            .gte('fecha_pedido', fechaDesde)
+            .lte('fecha_pedido', fechaHasta)
+            .execute()
+        )
+        responseClientes = (
+            supabase.table('clientes')
+            .select('id_cliente, descuento_1, descuento_2, descuento_3, nombre')
+            .execute()
+        )
+        responseVendedores = (
+            supabase.table('vendedores')
+            .select('id_vendedor, porcentaje_comision, nombre')
             .execute()
         )
 
-        return render_template('analisisVentasDescuentos.html', datos = response.data)
+        return render_template('analisisVentasDescuentos.html', datosPedidos = responsePedidos.data,
+                               datosClientes = responseClientes.data, datosVendedores = responseVendedores.data)
     else:
         return render_template('analisisVentasDescuentos.html')
 

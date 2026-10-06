@@ -41,18 +41,18 @@
         data.forEach((rowData) => {
             const tr = document.createElement('tr');
             headers.forEach(key => {
-            const td = document.createElement('td');
-            // Handle null/undefined or nested objects
-            const value = rowData[key];
-            console.log(key);
-            if (key == 'producto_asociado'){
-                var prueba = dataProductos.find(e=>e['id_producto'] === value);
-                td.textContent = prueba['descripcion'];
-            } else{
-                td.textContent = (typeof value === 'object') ? JSON.stringify(value) : value;
-            }
-            
-            tr.appendChild(td);
+                const td = document.createElement('td');
+                // Handle null/undefined or nested objects
+                const value = rowData[key];
+                console.log(key);
+                if (key == 'producto_asociado'){
+                    var prueba = dataProductos.find(e=>e['id_producto'] === value);
+                    td.textContent = prueba['descripcion'];
+                } else{
+                    td.textContent = (typeof value === 'object') ? JSON.stringify(value) : value;
+                }
+                
+                tr.appendChild(td);
             });
             tbody.appendChild(tr);
         });

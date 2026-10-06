@@ -13,7 +13,7 @@
 </head>
 <script>
     
-    function tablaProductosTerminados() {
+    function TablaTerminados() {
         var test = document.querySelector('#my_variable').value 
         const data = JSON.parse(test)
         if (!data || !data.length) return;
@@ -49,12 +49,16 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaProductosTerminados').appendChild(table);
+        document.getElementById('tablaVentasDescuentos').appendChild(table);
         } 
 
     function createTableFromJSON() {
-        var test = document.querySelector('#my_variable').value 
-        const data = JSON.parse(test)
+        var clientes = document.querySelector('#clientes').value 
+        const dataClientes = JSON.parse(clientes)
+        var vendedores = document.querySelector('#vendedores').value 
+        const dataVendedores = JSON.parse(vendedores)
+        var pedidos = document.querySelector('#pedidos').value 
+        const data = JSON.parse(pedidos)
         if (!data || !data.length) return;
 
         const table = document.createElement('table');
@@ -71,24 +75,66 @@
             th.textContent = key;
             headerRow.appendChild(th);
         });
+        const thDescuento1 = document.createElement('th');
+        thDescuento1.textContent = 'descuento 1';
+        headerRow.appendChild(thDescuento1);
+        const thDescuento2 = document.createElement('th');
+        thDescuento2.textContent = 'descuento 2';
+        headerRow.appendChild(thDescuento2);
+        const thDescuento3 = document.createElement('th');
+        thDescuento3.textContent = 'descuento 3';
+        headerRow.appendChild(thDescuento3);
+        const thPorcentajeComision = document.createElement('th');
+        thPorcentajeComision.textContent = 'Porcentaje de comisión';
+        headerRow.appendChild(thPorcentajeComision);
         thead.appendChild(headerRow);
 
         // Create rows for each data object
         data.forEach((rowData) => {
+            var des1
+            var des2
+            var des3
+            var porcom
             const tr = document.createElement('tr');
             headers.forEach(key => {
-            const td = document.createElement('td');
-            // Handle null/undefined or nested objects
-            const value = rowData[key];
-            td.textContent = (typeof value === 'object') ? JSON.stringify(value) : value;
-            tr.appendChild(td);
+                const td = document.createElement('td');
+                // Handle null/undefined or nested objects
+                const value = rowData[key];
+                if (key == 'cliente_asociado'){
+                    var placeholder = dataClientes.find(e=>e['id_cliente'] === value)
+                    td.textContent = placeholder['nombre'];
+                    des1 = (placeholder['descuento1']) ? placeholder['descuento1'] : 0
+                    des2 = (placeholder['descuento2']) ? placeholder['descuento2'] : 0
+                    des3 = (placeholder['descuento3']) ? placeholder['descuento3'] : 0
+                } else if (key == 'vendedor_asociado'){
+                    var placeholderVendedor = dataVendedores.find(e=>e['id_vendedor'] === value)
+                    td.textContent = placeholderVendedor['nombre'];
+                    porcom = (placeholderVendedor['porcentaje_comision']) ? placeholderVendedor['porcentaje_comision'] : 0
+                } else {
+                    td.textContent = (typeof value === 'object') ? JSON.stringify(value) : value;
+                }
+                tr.appendChild(td);
+
             });
+            const tdDes1 = document.createElement('td');
+            const tdDes2 = document.createElement('td');
+            const tdDes3 = document.createElement('td');
+            const tdPorCom = document.createElement('td');
+            tdDes1.textContent = des1
+            tdDes2.textContent = des2
+            tdDes3.textContent = des3
+            tdPorCom.textContent = porcom
+            
+            tr.appendChild(tdDes1);
+            tr.appendChild(tdDes2);
+            tr.appendChild(tdDes3);
+            tr.appendChild(tdPorCom);
             tbody.appendChild(tr);
         });
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaProductosTerminados').appendChild(table);
+        document.getElementById('tablaVentasDescuentos').appendChild(table);
         } 
 
     function tableTest(data) {
@@ -125,14 +171,16 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        document.getElementById('tablaProductosTerminados').appendChild(table);
+        document.getElementById('tablaVentasDescuentos').appendChild(table);
         } 
 </script>
 
 
-<body {% if datos %}onload="createTableFromJSON()"{% endif %}></body>
+<body {% if datosPedidos %}onload="createTableFromJSON()"{% endif %}></body>
 
-{% if datos %}<input type="hidden"  id="my_variable" value='{{ datos | tojson}}'>{% endif %}
+{% if datosPedidos %}<input type="hidden"  id="pedidos" value='{{ datosPedidos | tojson}}'>{% endif %}
+{% if datosClientes %}<input type="hidden"  id="clientes" value='{{ datosClientes | tojson}}'>{% endif %}
+{% if datosVendedores %}<input type="hidden"  id="vendedores" value='{{ datosVendedores | tojson}}'>{% endif %}
 <div>
     <P>Análisis de ventas y descuentos - Test</P>
     <form method="POST" role="form" action="#">
@@ -149,7 +197,7 @@
         <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
 </div>
-<div class="data-table-wrap" id="tablaProductosTerminados"></div>
+<div class="data-table-wrap" id="tablaVentasDescuentos"></div>
 </body>
 
 
